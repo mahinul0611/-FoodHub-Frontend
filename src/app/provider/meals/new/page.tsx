@@ -38,6 +38,7 @@ export default function NewMealPage() {
         categoryId: values.categoryId,
         price: values.price,
         quantity: values.quantity,
+        
         description: values.description,
       });
       toast("Meal created!", "success");

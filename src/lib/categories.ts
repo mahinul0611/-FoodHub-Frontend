@@ -8,13 +8,14 @@ import type { Category, Meal } from "./types";
  * filtering still work.
  */
 export async function loadCategories(): Promise<Category[]> {
-  try {
-    const payload = await api.get("/admin/category");
-    const categories = asArray<Category>(payload).filter(
-      (c) => c && typeof c.id === "string" && typeof c.name === "string",
-    );
-    if (categories.length > 0) return categories;
-  } catch {
+ for (const endpoint of ["/category", "/admin/category"]) {
+    try {
+      const payload = await api.get(endpoint);
+      const categories = asArray<Category>(payload).filter(
+        (c) => c && typeof c.id === "string" && typeof c.name === "string",
+      );
+      if (categories.length > 0) return categories;
+    }catch {
     // Fall through to the meals-based fallback below.
   }
 
@@ -36,4 +37,5 @@ export async function loadCategories(): Promise<Category[]> {
   } catch {
     return [];
   }
+}
 }
