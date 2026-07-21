@@ -2,21 +2,22 @@ import { api, asArray } from "./api";
 import type { Category, Meal } from "./types";
 
 /**
- * Loads categories from the API. The category list endpoint lives under
- * `/admin/category`; if it is not accessible for the current user, fall back
- * to the category objects embedded in the public meals list so browsing and
- * filtering still work.
+ * Loads categories from the API. Tries the public `/category` endpoint first,
+ * then the admin-only `/admin/category`; if neither is accessible for the
+ * current user, fall back to the category objects embedded in the public
+ * meals list so browsing and filtering still work.
  */
 export async function loadCategories(): Promise<Category[]> {
- for (const endpoint of ["/category", "/admin/category"]) {
+  for (const endpoint of ["/category", "/admin/category"]) {
     try {
       const payload = await api.get(endpoint);
       const categories = asArray<Category>(payload).filter(
         (c) => c && typeof c.id === "string" && typeof c.name === "string",
       );
       if (categories.length > 0) return categories;
-    }catch {
-    // Fall through to the meals-based fallback below.
+    } catch {
+      // Try the next endpoint, then the meals-based fallback below.
+    }
   }
 
   try {
@@ -37,5 +38,4 @@ export async function loadCategories(): Promise<Category[]> {
   } catch {
     return [];
   }
-}
 }
