@@ -111,6 +111,7 @@ const handleFacebookLogin = async () => {
         password: parsed.data.password,
         role: parsed.data.role,
         phone: parsed.data.phone,
+        callbackURL: `${window.location.origin}/login`,
       } as any);
       if (error) {
         setFormError(error.message ?? "Could not create your account.");
@@ -119,7 +120,10 @@ const handleFacebookLogin = async () => {
 
       const me = await refresh();
       if (!me) {
-        toast("Account created! Please log in.", "success");
+        toast(
+  "Account created! Check your email for a verification link, then log in.",
+  "success",
+);
         router.push("/login");
         return;
       }
