@@ -339,7 +339,6 @@ function ProfileSummary() {
           <dt className="text-neutral-400">Phone</dt>
           <dd className="mt-0.5 flex flex-wrap items-center gap-2 font-medium text-neutral-900">
             <span>{user?.phone ?? "\u2014"}</span>
-            <span>{user?.phone ?? "\u2014"}</span>
             {PHONE_VERIFICATION_ENABLED ? (
               user?.phoneVerified === true ? (
                 <Badge className="border-green-200 bg-green-50 text-green-700">
