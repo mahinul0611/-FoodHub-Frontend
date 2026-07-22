@@ -111,7 +111,7 @@ const handleFacebookLogin = async () => {
         password: parsed.data.password,
         role: parsed.data.role,
         phone: parsed.data.phone,
-        callbackURL: `${window.location.origin}/login`,
+        callbackURL: `${window.location.origin}/email-verified`,
       } as any);
       if (error) {
         setFormError(error.message ?? "Could not create your account.");
