@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState, type FormEvent } from "react";
-import { Button, Field, Input } from "@/components/ui";
+import { Button, Field, Input, PasswordInput } from "@/components/ui";
 import { getErrorMessage } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import { useToast } from "@/lib/toast-context";
@@ -74,8 +74,7 @@ function ResetPasswordForm() {
       ) : null}
 
       <Field label="New password">
-        <Input
-          type="password"
+        <PasswordInput
           autoComplete="new-password"
           value={form.password}
           onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}

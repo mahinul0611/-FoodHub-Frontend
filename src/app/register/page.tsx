@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { Button, Field, Input, cn } from "@/components/ui";
+import { Button, Field, Input, PasswordInput, cn } from "@/components/ui";
 import { getErrorMessage } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import { useAuth } from "@/lib/auth-context";
@@ -246,8 +246,8 @@ const handleFacebookLogin = async () => {
           error={errors.password}
           hint="At least 8 characters"
         >
-          <Input
-            type="password"
+          <PasswordInput
+            
             autoComplete="new-password"
             value={form.password}
             onChange={(e) => set("password", e.target.value)}

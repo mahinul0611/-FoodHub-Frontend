@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { Button, Field, Input } from "@/components/ui";
+import { Button, Field, Input, PasswordInput } from "@/components/ui";
 import { getErrorMessage } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import { useAuth } from "@/lib/auth-context";
@@ -146,8 +146,8 @@ export default function LoginPage() {
         </Field>
 
         <Field label="Password" error={errors.password}>
-          <Input
-            type="password"
+          <PasswordInput 
+           
             autoComplete="current-password"
             value={form.password}
             onChange={(e) =>

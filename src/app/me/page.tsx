@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { RequireAuth } from "@/components/require-auth";
-import { Badge, Button, Field, Input } from "@/components/ui";
+import { Badge, Button, Field, Input, PasswordInput } from "@/components/ui";
 import { api, getErrorMessage } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import { useAuth } from "@/lib/auth-context";
@@ -275,8 +275,7 @@ function ChangePasswordForm() {
 
       <div className="mt-4 space-y-4">
         <Field label="Current password">
-          <Input
-            type="password"
+          <PasswordInput
             autoComplete="current-password"
             value={form.current}
             onChange={(e) =>
@@ -287,8 +286,7 @@ function ChangePasswordForm() {
         </Field>
 
         <Field label="New password">
-          <Input
-            type="password"
+          <PasswordInput
             autoComplete="new-password"
             value={form.next}
             onChange={(e) => setForm((f) => ({ ...f, next: e.target.value }))}
@@ -297,8 +295,7 @@ function ChangePasswordForm() {
         </Field>
 
         <Field label="Confirm new password">
-          <Input
-            type="password"
+          <PasswordInput
             autoComplete="new-password"
             value={form.confirm}
             onChange={(e) =>
