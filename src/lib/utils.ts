@@ -49,7 +49,9 @@ export function statusBadgeClass(status?: string): string {
   ) {
     return "bg-emerald-50 text-emerald-700 border-emerald-200";
   }
-  if (["CANCELLED", "BLOCKED", "UNAVAILABLE", "REJECTED"].includes(s)) {
+  if (
+    ["CANCELLED", "BLOCKED", "SUSPEND", "UNAVAILABLE", "REJECTED"].includes(s)
+  ) {
     return "bg-red-50 text-red-700 border-red-200";
   }
   if (["PREPARING", "CONFIRMED", "OUT_FOR_DELIVERY"].includes(s)) {
