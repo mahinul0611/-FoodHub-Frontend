@@ -45,9 +45,11 @@ async function request<T = unknown>(
 
   if (!res.ok) {
     const message =
-      (data &&
-        typeof data === "object" &&
-        (data.message || data.error || data.errorMessage)) ||
+  (data &&
+    typeof data === "object" &&
+    ((typeof data.error === "string" && data.error) ||
+      data.message ||
+      data.errorMessage)) ||
       (typeof data === "string" && data.slice(0, 200)) ||
       `Request failed with status ${res.status}`;
     throw new ApiError(String(message), res.status);
