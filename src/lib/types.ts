@@ -6,6 +6,7 @@ export interface AppUser {
   email?: string;
   role?: Role | string;
   phone?: string;
+  phoneVerified?: boolean;   // 👈 notun
   image?: string | null;
   status?: string;
   address?: string;

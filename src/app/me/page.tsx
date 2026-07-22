@@ -3,7 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { RequireAuth } from "@/components/require-auth";
 import { Badge, Button, Field, Input } from "@/components/ui";
-import { getErrorMessage } from "@/lib/api";
+import { api, getErrorMessage } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/lib/toast-context";
@@ -32,10 +32,11 @@ function ProfileDetailsForm() {
     }
     setError(null);
     setSaving(true);
+    const phoneChanged = form.phone.trim() !== (user?.phone ?? "");
     try {
       const { error: apiError } = await authClient.updateUser({
         name: form.name.trim(),
-        phone: form.phone.trim(),
+        ...(phoneChanged ? { phone: form.phone.trim() } : {}),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
       if (apiError) {
@@ -43,7 +44,12 @@ function ProfileDetailsForm() {
         return;
       }
       await refresh();
-      toast("Profile updated", "success");
+      toast(
+        phoneChanged
+          ? "Profile updated \u2014 please verify your new phone number"
+          : "Profile updated",
+        "success",
+      );
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
@@ -80,7 +86,10 @@ function ProfileDetailsForm() {
           />
         </Field>
 
-        <Field label="Phone">
+        <Field
+          label="Phone"
+          hint="Changing your phone number will require verifying it again."
+        >
           <Input
             type="tel"
             value={form.phone}
@@ -95,6 +104,103 @@ function ProfileDetailsForm() {
         </Button>
       </div>
     </form>
+  );
+}
+
+function PhoneVerificationCard() {
+  const { user, refresh } = useAuth();
+  const { toast } = useToast();
+  const [otp, setOtp] = useState("");
+  const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (!user || user.phoneVerified === true) return null;
+
+  const handleSend = async () => {
+    setError(null);
+    setSending(true);
+    try {
+      await api.post("/phone/send-otp");
+      setSent(true);
+      toast("Verification code sent to your email", "success");
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleVerify = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (otp.trim().length !== 6) {
+      setError("Enter the 6-digit code.");
+      return;
+    }
+    setError(null);
+    setVerifying(true);
+    try {
+      await api.post("/phone/verify-otp", { otp: otp.trim() });
+      await refresh();
+      setOtp("");
+      setSent(false);
+      toast("Phone number verified!", "success");
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  return (
+    <div className="rounded-xl border border-amber-200 bg-amber-50 p-6">
+      <h2 className="text-base font-semibold text-neutral-900">
+        Verify your phone number
+      </h2>
+      <p className="mt-1 text-sm text-neutral-600">
+        You need a verified phone number to place orders. We’ll email a 6-digit
+        code to {user.email}.
+      </p>
+
+      {error ? (
+        <p className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {error}
+        </p>
+      ) : null}
+
+      {sent ? (
+        <form onSubmit={handleVerify} noValidate className="mt-4 space-y-4">
+          <Field label="Verification code">
+            <Input
+              inputMode="numeric"
+              maxLength={6}
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              placeholder="6-digit code"
+              className="max-w-[220px] bg-white"
+            />
+          </Field>
+          <div className="flex flex-wrap items-center gap-4">
+            <Button type="submit" loading={verifying}>
+              Verify phone
+            </Button>
+            <button
+              type="button"
+              onClick={handleSend}
+              disabled={sending}
+              className="text-sm font-medium text-brand-700 underline disabled:opacity-60"
+            >
+              Resend code
+            </button>
+          </div>
+        </form>
+      ) : (
+        <Button className="mt-4" onClick={handleSend} loading={sending}>
+          Send verification code
+        </Button>
+      )}
+    </div>
   );
 }
 
@@ -219,7 +325,7 @@ function ProfileSummary() {
         </div>
         <div className="min-w-0">
           <p className="truncate text-lg font-semibold text-neutral-900">
-            {user?.name ?? "—"}
+            {user?.name ?? "\u2014"}
           </p>
           <p className="truncate text-sm text-neutral-500">{user?.email}</p>
         </div>
@@ -228,14 +334,23 @@ function ProfileSummary() {
       <dl className="mt-4 grid gap-3 border-t border-neutral-100 pt-4 text-sm sm:grid-cols-2">
         <div>
           <dt className="text-neutral-400">Phone</dt>
-          <dd className="mt-0.5 font-medium text-neutral-900">
-            {user?.phone ?? "—"}
+          <dd className="mt-0.5 flex flex-wrap items-center gap-2 font-medium text-neutral-900">
+            <span>{user?.phone ?? "\u2014"}</span>
+            {user?.phoneVerified === true ? (
+              <Badge className="border-green-200 bg-green-50 text-green-700">
+                Verified
+              </Badge>
+            ) : (
+              <Badge className="border-amber-200 bg-amber-50 text-amber-700">
+                Not verified
+              </Badge>
+            )}
           </dd>
         </div>
         <div>
           <dt className="text-neutral-400">Member since</dt>
           <dd className="mt-0.5 font-medium text-neutral-900">
-            {user?.createdAt ? formatDate(user.createdAt) : "—"}
+            {user?.createdAt ? formatDate(user.createdAt) : "\u2014"}
           </dd>
         </div>
       </dl>
@@ -254,6 +369,7 @@ export default function ProfilePage() {
 
         <div className="mt-6 space-y-6">
           <ProfileSummary />
+          <PhoneVerificationCard />
           <ProfileDetailsForm />
           <ChangePasswordForm />
         </div>

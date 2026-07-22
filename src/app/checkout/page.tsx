@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { useAuth } from "@/lib/auth-context";
 import { RequireAuth } from "@/components/require-auth";
 import {
   Button,
@@ -19,6 +20,7 @@ import { formatPrice, toNumber } from "@/lib/utils";
 import { checkoutSchema, zodFieldErrors } from "@/lib/validators";
 
 function CheckoutContent() {
+  const { user } = useAuth();
   const router = useRouter();
   const { items, total, clear } = useCart();
   const { toast } = useToast();
@@ -27,6 +29,8 @@ function CheckoutContent() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+const phoneUnverified = user?.phoneVerified === false
 
   if (items.length === 0) {
     return (
@@ -92,6 +96,19 @@ function CheckoutContent() {
           noValidate
           className="space-y-4 rounded-xl border border-neutral-200 bg-white p-6"
         >
+          {phoneUnverified ? (
+  <div
+    role="alert"
+    className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+  >
+    Your phone number is not verified yet. Please{" "}
+    <Link href="/me" className="font-semibold underline">
+      verify your phone number
+    </Link>{" "}
+    before placing an order.
+  </div>
+) : null}
+
           {formError ? (
             <div
               role="alert"
@@ -125,7 +142,11 @@ function CheckoutContent() {
             />
           </Field>
 
-          <Button type="submit" loading={submitting} className="w-full">
+          <Button 
+          type="submit" 
+          loading={submitting}
+          disabled={phoneUnverified}
+           className="w-full">
             Place order {"\u00B7"} {formatPrice(total)}
           </Button>
         </form>
@@ -165,6 +186,7 @@ function CheckoutContent() {
     </div>
   );
 }
+
 
 export default function CheckoutPage() {
   return (
