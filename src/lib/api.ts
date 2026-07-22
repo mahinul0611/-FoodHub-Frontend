@@ -1,5 +1,5 @@
 export const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "https://foodhub-backend-5.onrender.com";
+  process.env.NEXT_PUBLIC_API_URL ?? "https://foodhub-backend-7.onrender.com";
 
 export class ApiError extends Error {
   status: number;
