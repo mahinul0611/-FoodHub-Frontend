@@ -84,7 +84,7 @@ function ResetPasswordForm() {
 
       <Field label="Confirm new password">
         <Input
-          type="password"
+          
           autoComplete="new-password"
           value={form.confirm}
           onChange={(e) => setForm((f) => ({ ...f, confirm: e.target.value }))}
