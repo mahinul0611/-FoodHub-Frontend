@@ -115,7 +115,7 @@ export function Navbar() {
               >
                 Profile
               </Link>
-
+             
               <button
                 onClick={handleSignOut}
                 className="rounded-lg border border-neutral-200 px-3 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50"
@@ -200,13 +200,14 @@ export function Navbar() {
                   Dashboard
                 </Link>
 
-                <Link
-                  href={dashboardHref(role)}
-                  className={linkClass(dashboardHref(role))}
-                  onClick={() => setOpen(false)}
-                >
-                  Dashboard
-                </Link>
+              <Link
+                href="/me"
+                className={linkClass("/me")}
+                onClick={() => setOpen(false)}
+              >
+                Profile
+              </Link>
+                
                 <button
                   onClick={handleSignOut}
                   className="rounded-lg px-3 py-2 text-left text-sm font-medium text-neutral-600 hover:bg-neutral-50"
