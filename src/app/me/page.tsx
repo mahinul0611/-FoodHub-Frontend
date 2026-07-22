@@ -8,6 +8,7 @@ import { authClient } from "@/lib/auth-client";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/lib/toast-context";
 import { formatDate, roleOf, statusBadgeClass } from "@/lib/utils";
+import { PHONE_VERIFICATION_ENABLED } from "@/lib/types";
 
 function ProfileDetailsForm() {
   const { user, refresh } = useAuth();
@@ -116,7 +117,9 @@ function PhoneVerificationCard() {
   const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (!user || user.phoneVerified === true) return null;
+  if (!PHONE_VERIFICATION_ENABLED || !user || user.phoneVerified === true) {
+    return null;
+  }
 
   const handleSend = async () => {
     setError(null);
@@ -336,15 +339,18 @@ function ProfileSummary() {
           <dt className="text-neutral-400">Phone</dt>
           <dd className="mt-0.5 flex flex-wrap items-center gap-2 font-medium text-neutral-900">
             <span>{user?.phone ?? "\u2014"}</span>
-            {user?.phoneVerified === true ? (
-              <Badge className="border-green-200 bg-green-50 text-green-700">
-                Verified
-              </Badge>
-            ) : (
-              <Badge className="border-amber-200 bg-amber-50 text-amber-700">
-                Not verified
-              </Badge>
-            )}
+            <span>{user?.phone ?? "\u2014"}</span>
+            {PHONE_VERIFICATION_ENABLED ? (
+              user?.phoneVerified === true ? (
+                <Badge className="border-green-200 bg-green-50 text-green-700">
+                  Verified
+                </Badge>
+              ) : (
+                <Badge className="border-amber-200 bg-amber-50 text-amber-700">
+                  Not verified
+                </Badge>
+              )
+            ) : null}
           </dd>
         </div>
         <div>

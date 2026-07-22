@@ -18,6 +18,7 @@ import { useCart } from "@/lib/cart-context";
 import { useToast } from "@/lib/toast-context";
 import { formatPrice, toNumber } from "@/lib/utils";
 import { checkoutSchema, zodFieldErrors } from "@/lib/validators";
+import { PHONE_VERIFICATION_ENABLED } from "@/lib/types";
 
 function CheckoutContent() {
   const { user } = useAuth();
@@ -30,7 +31,8 @@ function CheckoutContent() {
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-const phoneUnverified = user?.phoneVerified === false
+const phoneUnverified =
+  PHONE_VERIFICATION_ENABLED && user?.phoneVerified === false;
 
   if (items.length === 0) {
     return (

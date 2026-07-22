@@ -1,5 +1,6 @@
 export type Role = "USER" | "PROVIDER" | "ADMIN";
-
+// Feature flag: set to true to require phone verification before ordering.
+export const PHONE_VERIFICATION_ENABLED = false;
 export interface AppUser {
   id: string;
   name?: string;
