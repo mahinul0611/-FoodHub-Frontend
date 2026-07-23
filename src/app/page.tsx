@@ -295,7 +295,7 @@ export default function HomePage() {
                         {restaurant.name}
                       </h3>
                       <p className="text-sm text-neutral-500 mt-1 truncate">
-                        {restaurant.email}
+                        Delicious Food!
                       </p>
 
                       <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between">
