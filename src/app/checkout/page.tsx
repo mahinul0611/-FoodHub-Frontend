@@ -17,7 +17,11 @@ import { api, getErrorMessage, unwrap } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
 import { useToast } from "@/lib/toast-context";
-import { PAYMENT_METHODS, PHONE_VERIFICATION_ENABLED } from "@/lib/types";
+import {
+  DELIVERY_CHARGE,
+  PAYMENT_METHODS,
+  PHONE_VERIFICATION_ENABLED,
+} from "@/lib/types";
 import { formatPrice, toNumber } from "@/lib/utils";
 import { checkoutSchema, zodFieldErrors } from "@/lib/validators";
 
@@ -40,9 +44,20 @@ function CheckoutContent() {
 
   const [form, setForm] = useState({ address: "", contactNumber: "" });
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("COD");
+  const [couponInput, setCouponInput] = useState("");
+  const [coupon, setCoupon] = useState<{
+    code: string;
+    discount: number;
+  } | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const subtotal = total;
+  const discount = coupon ? Math.min(coupon.discount, subtotal) : 0;
+  const grandTotal = Math.max(0, subtotal + DELIVERY_CHARGE - discount);
 
   if (items.length === 0) {
     return (
@@ -64,6 +79,30 @@ function CheckoutContent() {
     );
   }
 
+  const applyCoupon = async () => {
+    const code = couponInput.trim();
+    if (!code) return;
+    setCouponError(null);
+    setApplyingCoupon(true);
+    try {
+      const payload = await api.post("/coupons/validate", {
+        code,
+        subtotal,
+      });
+      const result = unwrap<{ code?: string; discount?: number }>(payload);
+      if (!result?.code || typeof result.discount !== "number") {
+        throw new Error("Invalid coupon code.");
+      }
+      setCoupon({ code: result.code, discount: result.discount });
+      toast(`Coupon ${result.code} applied!`, "success");
+    } catch (err) {
+      setCoupon(null);
+      setCouponError(getErrorMessage(err));
+    } finally {
+      setApplyingCoupon(false);
+    }
+  };
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFormError(null);
@@ -84,6 +123,7 @@ function CheckoutContent() {
           mealsId: item.meal.id,
           quantity: item.quantity,
         })),
+        ...(coupon ? { couponCode: coupon.code } : {}),
       });
 
       if (paymentMethod !== "COD") {
@@ -211,6 +251,44 @@ function CheckoutContent() {
             </div>
           </Field>
 
+          <Field label="Promo code" error={couponError ?? undefined}>
+            {coupon ? (
+              <div className="flex items-center justify-between gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm">
+                <span className="font-medium text-green-800">
+                  {coupon.code} applied {"\u2014"} you save{" "}
+                  {formatPrice(discount)}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCoupon(null);
+                    setCouponInput("");
+                  }}
+                  className="font-medium text-green-700 underline"
+                >
+                  Remove
+                </button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <Input
+                  value={couponInput}
+                  onChange={(e) => setCouponInput(e.target.value)}
+                  placeholder="e.g. WELCOME10"
+                  className="uppercase"
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  loading={applyingCoupon}
+                  onClick={applyCoupon}
+                >
+                  Apply
+                </Button>
+              </div>
+            )}
+          </Field>
+
           <Button
             type="submit"
             loading={submitting}
@@ -218,7 +296,7 @@ function CheckoutContent() {
             className="w-full"
           >
             {paymentMethod !== "COD" ? "Pay now" : "Place order"} {"\u00B7"}{" "}
-            {formatPrice(total)}
+            {formatPrice(grandTotal)}
           </Button>
         </form>
 
@@ -244,14 +322,32 @@ function CheckoutContent() {
               </li>
             ))}
           </ul>
-          <div className="mt-3 flex justify-between border-t border-neutral-100 pt-3">
-            <span className="text-sm font-semibold text-neutral-900">
-              Total
-            </span>
-            <span className="text-lg font-bold text-neutral-900">
-              {formatPrice(total)}
-            </span>
-          </div>
+          <dl className="mt-3 space-y-1.5 border-t border-neutral-100 pt-3 text-sm">
+            <div className="flex justify-between">
+              <dt className="text-neutral-500">Subtotal</dt>
+              <dd className="font-medium text-neutral-900">
+                {formatPrice(subtotal)}
+              </dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-neutral-500">Delivery charge</dt>
+              <dd className="font-medium text-neutral-900">
+                {formatPrice(DELIVERY_CHARGE)}
+              </dd>
+            </div>
+            {coupon ? (
+              <div className="flex justify-between text-green-700">
+                <dt>Discount ({coupon.code})</dt>
+                <dd className="font-medium">-{formatPrice(discount)}</dd>
+              </div>
+            ) : null}
+            <div className="flex justify-between border-t border-neutral-100 pt-2">
+              <dt className="text-sm font-semibold text-neutral-900">Total</dt>
+              <dd className="text-lg font-bold text-neutral-900">
+                {formatPrice(grandTotal)}
+              </dd>
+            </div>
+          </dl>
         </aside>
       </div>
     </div>

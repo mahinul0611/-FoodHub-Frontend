@@ -140,3 +140,17 @@ export const MEAL_STATUSES = ["AVAILABLE", "STOCKOUT"] as const;
 export const USER_STATUSES = ["ACTIVATE", "SUSPEND"] as const;
 
 export const PAYMENT_METHODS = ["COD", "SSLCOMMERZ","STRIPE"] as const;
+export const DELIVERY_CHARGE = 60; // BDT — backend er DELIVERY_CHARGE er sathe same rakho
+
+export interface Coupon {
+  id: string;
+  code: string;
+  discountType: "PERCENT" | "FLAT";
+  value: number;
+  minOrder?: number | string | null;
+  maxUses?: number | null;
+  usedCount?: number;
+  active?: boolean;
+  expiresAt?: string | null;
+  createdAt?: string;
+}
