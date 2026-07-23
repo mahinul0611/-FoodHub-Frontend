@@ -139,4 +139,4 @@ export const MEAL_STATUSES = ["AVAILABLE", "STOCKOUT"] as const;
 
 export const USER_STATUSES = ["ACTIVATE", "SUSPEND"] as const;
 
-export const PAYMENT_METHODS = ["COD", "SSLCOMMERZ"] as const;
+export const PAYMENT_METHODS = ["COD", "SSLCOMMERZ","STRIPE"] as const;

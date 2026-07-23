@@ -23,6 +23,12 @@ import { checkoutSchema, zodFieldErrors } from "@/lib/validators";
 
 type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
+const METHOD_LABELS: Record<PaymentMethod, { title: string; hint: string }> = {
+  COD: { title: "Cash on delivery", hint: "Pay when your food arrives" },
+  SSLCOMMERZ: { title: "SSLCommerz", hint: "Cards, bKash & more (BDT)" },
+  STRIPE: { title: "Stripe", hint: "International cards" },
+};
+
 function CheckoutContent() {
   const router = useRouter();
   const { user } = useAuth();
@@ -80,7 +86,7 @@ function CheckoutContent() {
         })),
       });
 
-      if (paymentMethod === "SSLCOMMERZ") {
+      if (paymentMethod !== "COD") {
         const order = unwrap<{ id?: string }>(payload);
         const orderId = order?.id;
         if (!orderId) {
@@ -88,7 +94,10 @@ function CheckoutContent() {
             "Your order was placed, but the payment could not start. Check My orders.",
           );
         }
-        const initPayload = await api.post("/payments/init", { orderId });
+        const initPayload = await api.post("/payments/init", {
+          orderId,
+          method: paymentMethod,
+        });
         const init = unwrap<{ paymentUrl?: string }>(initPayload);
         if (!init?.paymentUrl) {
           throw new Error(
@@ -170,7 +179,7 @@ function CheckoutContent() {
           </Field>
 
           <Field label="Payment method">
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid gap-2 sm:grid-cols-3">
               {PAYMENT_METHODS.map((method) => (
                 <label
                   key={method}
@@ -191,12 +200,10 @@ function CheckoutContent() {
                   />
                   <span>
                     <span className="block font-medium text-neutral-900">
-                      {method === "COD" ? "Cash on delivery" : "Pay online"}
+                      {METHOD_LABELS[method].title}
                     </span>
                     <span className="block text-xs text-neutral-500">
-                      {method === "COD"
-                        ? "Pay when your food arrives"
-                        : "Cards, bKash & more via SSLCommerz"}
+                      {METHOD_LABELS[method].hint}
                     </span>
                   </span>
                 </label>
@@ -210,8 +217,8 @@ function CheckoutContent() {
             disabled={phoneUnverified}
             className="w-full"
           >
-            {paymentMethod === "SSLCOMMERZ" ? "Pay now" : "Place order"}{" "}
-            {"\u00B7"} {formatPrice(total)}
+            {paymentMethod !== "COD" ? "Pay now" : "Place order"} {"\u00B7"}{" "}
+            {formatPrice(total)}
           </Button>
         </form>
 
