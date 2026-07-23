@@ -62,7 +62,7 @@ export default function ProviderOverviewPage() {
       }
 
       try {
-        const orders = asArray<Order>(await api.get("/orders"));
+        const orders = asArray<Order>(await api.get("/provider/orders"));
         if (!cancelled) setOrderCount(orders.length);
       } catch {
         if (!cancelled) setOrderCount(null);
