@@ -94,6 +94,46 @@ export const ORDER_STATUSES = [
   "CANCELLED",
 ] as const;
 
+
+export const COMPLAINT_CATEGORIES = [
+  "FOOD_QUALITY",
+  "MISSING_ITEMS",
+  "LATE_DELIVERY",
+  "WRONG_ORDER",
+  "OTHER",
+] as const;
+
+export const COMPLAINT_CATEGORY_LABELS: Record<string, string> = {
+  FOOD_QUALITY: "Food quality",
+  MISSING_ITEMS: "Missing items",
+  LATE_DELIVERY: "Late delivery",
+  WRONG_ORDER: "Wrong order",
+  OTHER: "Other",
+};
+
+export const COMPLAINT_STATUSES = [
+  "OPEN",
+  "IN_REVIEW",
+  "RESOLVED",
+  "REJECTED",
+] as const;
+
+export interface Complaint {
+  id: string;
+  orderId?: string;
+  userId?: string;
+  providerId?: string;
+  category?: string;
+  description?: string;
+  status?: string;
+  resolution?: string;
+  user?: AppUser | null;
+  provider?: AppUser | null;
+  createdAt?: string;
+  [key: string]: unknown;
+}
+
+
 export const MEAL_STATUSES = ["AVAILABLE", "UNAVAILABLE"] as const;
 
 export const USER_STATUSES = ["ACTIVATE", "SUSPEND"] as const;

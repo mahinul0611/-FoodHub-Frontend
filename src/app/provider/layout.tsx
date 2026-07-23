@@ -9,6 +9,7 @@ const NAV = [
   { href: "/provider/meals", label: "My meals" },
   { href: "/provider/orders", label: "Orders" },
   { href: "/provider/profile", label: "Profile" },
+  { href: "/provider/complaints", label: "Complaints" },
 ];
 
 export default function ProviderLayout({ children }: { children: ReactNode }) {

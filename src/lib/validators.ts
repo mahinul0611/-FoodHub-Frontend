@@ -95,3 +95,14 @@ export function zodFieldErrors(error: z.ZodError): Record<string, string> {
   }
   return errors;
 }
+
+
+export const complaintSchema = z.object({
+  category: z.string().min(1, "Select a category"),
+  description: z
+    .string()
+    .trim()
+    .min(10, "Please describe the issue in at least 10 characters")
+    .max(1000, "Keep the description under 1000 characters"),
+});
+export type ComplaintInput = z.infer<typeof complaintSchema>;
