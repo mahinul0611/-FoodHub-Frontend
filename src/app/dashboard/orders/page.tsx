@@ -24,6 +24,7 @@ import {
 import { statusBadgeClass } from "@/lib/utils";
 import { complaintSchema, zodFieldErrors } from "@/lib/validators";
 import { CancelOrderButton } from "@/components/cancel-order-button";
+import { ReorderButton } from "@/components/reorder-button";
 
 function ComplaintSection({
   order,
@@ -61,8 +62,8 @@ function ComplaintSection({
           </p>
         ) : (
           <p className="mt-2 text-neutral-500">
-            We have shared this with the restaurant and our team. Their
-            response will appear here.
+            We have shared this with the restaurant and our team. Their response
+            will appear here.
           </p>
         )}
       </div>
@@ -209,14 +210,15 @@ export default function MyOrdersPage() {
           order={order}
           actions={
             <>
-            
-            <CancelOrderButton order={order} />
-            <ComplaintSection
-              order={order}
-              complaint={complaintByOrder.get(order.id) ?? null}
-              onCreated={loadComplaints}
-            />
-
+              <div className="flex flex-wrap items-center gap-3">
+                <ReorderButton order={order} />
+                <CancelOrderButton order={order} />
+              </div>
+              <ComplaintSection
+                order={order}
+                complaint={complaintByOrder.get(order.id) ?? null}
+                onCreated={loadComplaints}
+              />
             </>
           }
         />
