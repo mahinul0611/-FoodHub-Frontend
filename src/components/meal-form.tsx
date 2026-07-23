@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { Button, Field, Input, Select, Textarea } from "@/components/ui";
+import { ImageUpload } from "@/components/image-upload"; // 🔥 Import kora holo
 import type { Category, Meal } from "@/lib/types";
 import { MEAL_STATUSES } from "@/lib/types";
 import {
@@ -17,6 +18,7 @@ export interface MealFormValues {
   quantity: number;
   description: string;
   status?: string;
+  image?: string | null; // 🔥 Image field add kora holo
 }
 
 export function MealForm({
@@ -41,6 +43,7 @@ export function MealForm({
     quantity: initial?.quantity !== undefined ? String(initial.quantity) : "",
     description: String(initial?.description ?? ""),
     status: String(initial?.status ?? "AVAILABLE").toUpperCase(),
+    image: String(initial?.image ?? ""), // 🔥 Initial state a image add kora holo
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -61,6 +64,14 @@ export function MealForm({
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
+      {/* 🔥 Image Upload Field add kora holo */}
+      <Field label="Meal image" error={errors.image}>
+        <ImageUpload
+          value={form.image}
+          onChange={(url) => set("image", url)}
+        />
+      </Field>
+
       <Field label="Meal name" error={errors.name}>
         <Input
           value={form.name}

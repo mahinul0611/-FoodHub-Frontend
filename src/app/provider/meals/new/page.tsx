@@ -40,6 +40,7 @@ export default function NewMealPage() {
         quantity: values.quantity,
         
         description: values.description,
+        image: values.image,
       });
       toast("Meal created!", "success");
       router.push("/provider/meals");

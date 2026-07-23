@@ -53,6 +53,7 @@ export default function EditMealPage() {
         price: values.price,
         quantity: values.quantity,
         description: values.description,
+        image: values.image,
         status: values.status,
       });
       toast("Meal updated!", "success");

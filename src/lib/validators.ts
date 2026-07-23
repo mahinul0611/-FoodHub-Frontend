@@ -37,6 +37,7 @@ export const mealCreateSchema = z.object({
     .string()
     .trim()
     .min(10, "Description must be at least 10 characters"),
+  image: z.string().optional().nullable(),
 });
 export type MealCreateInput = z.infer<typeof mealCreateSchema>;
 
@@ -48,7 +49,8 @@ export const mealUpdateSchema = z.object({
     .string()
     .trim()
     .min(10, "Description must be at least 10 characters"),
-status: z.enum(["AVAILABLE", "STOCKOUT"], {
+  image: z.string().optional().nullable(),
+  status: z.enum(["AVAILABLE", "STOCKOUT"], {
     errorMap: () => ({ message: "Select a status" }),
   }),
 });
@@ -95,7 +97,6 @@ export function zodFieldErrors(error: z.ZodError): Record<string, string> {
   }
   return errors;
 }
-
 
 export const complaintSchema = z.object({
   category: z.string().min(1, "Select a category"),
