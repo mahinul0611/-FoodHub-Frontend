@@ -23,6 +23,7 @@ import {
 } from "@/lib/types";
 import { statusBadgeClass } from "@/lib/utils";
 import { complaintSchema, zodFieldErrors } from "@/lib/validators";
+import { CancelOrderButton } from "@/components/cancel-order-button";
 
 function ComplaintSection({
   order,
@@ -207,11 +208,16 @@ export default function MyOrdersPage() {
           key={order.id ?? index}
           order={order}
           actions={
+            <>
+            
+            <CancelOrderButton order={order} />
             <ComplaintSection
               order={order}
               complaint={complaintByOrder.get(order.id) ?? null}
               onCreated={loadComplaints}
             />
+
+            </>
           }
         />
       ))}
