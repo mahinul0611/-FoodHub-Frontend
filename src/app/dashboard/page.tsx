@@ -38,7 +38,9 @@ export default function DashboardOverviewPage() {
     .slice(0, 2)
     .join("")
     .toUpperCase();
-  const totalSpent = orders.reduce((sum, order) => sum + orderTotal(order), 0);
+ const totalSpent = orders
+  .filter((order) => (order.status ?? "").toUpperCase() !== "CANCELLED")
+  .reduce((sum, order) => sum + orderTotal(order), 0);
 
   return (
     <div className="space-y-6">
