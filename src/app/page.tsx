@@ -8,6 +8,10 @@ import { api, asArray, getErrorMessage } from "@/lib/api";
 import { loadCategories } from "@/lib/categories";
 import type { Category, Meal } from "@/lib/types";
 
+// Default coordinates (Dhaka) if user blocks location
+const DEFAULT_LAT = 23.8103;
+const DEFAULT_LNG = 90.4125;
+
 const HOW_IT_WORKS = [
   {
     icon: "\uD83D\uDD0D",
@@ -58,6 +62,12 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Nearby restaurants states
+  const [nearbyRestaurants, setNearbyRestaurants] = useState<any[]>([]);
+  const [locationLoading, setLocationLoading] = useState(true);
+  const [isDefaultLocation, setIsDefaultLocation] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -75,9 +85,44 @@ export default function HomePage() {
     }
   }, []);
 
+  const loadNearby = useCallback(async (lat: number, lng: number) => {
+    setLocationLoading(true);
+    setLocationError(null);
+    try {
+      const payload = await api.get(`/providers/nearby?lat=${lat}&lng=${lng}&radius=15`);
+      const data = (payload as any)?.data ?? payload;
+      setNearbyRestaurants(asArray<any>(data));
+    } catch (err) {
+      setLocationError(getErrorMessage(err));
+    } finally {
+      setLocationLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     void load();
   }, [load]);
+
+  // Auto-detect user geolocation, fallback to Dhaka if blocked/unsupported
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setIsDefaultLocation(false);
+          void loadNearby(position.coords.latitude, position.coords.longitude);
+        },
+        (err) => {
+          // Fallback to default location (Dhaka) if permission denied
+          setIsDefaultLocation(true);
+          void loadNearby(DEFAULT_LAT, DEFAULT_LNG);
+        }
+      );
+    } else {
+      // Fallback if not supported
+      setIsDefaultLocation(true);
+      void loadNearby(DEFAULT_LAT, DEFAULT_LNG);
+    }
+  }, [loadNearby]);
 
   const featured = meals.slice(0, 8);
 
@@ -178,6 +223,58 @@ export default function HomePage() {
               </Link>
               .
             </p>
+          )}
+        </div>
+      </section>
+
+      {/* Section 2.5: Restaurants Near You (Location Based with Default Fallback) */}
+      <section className="mx-auto max-w-6xl px-4 pb-14">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-2">
+          <div>
+            <h2 className="text-2xl font-bold text-neutral-900">
+              Restaurants near you 📍
+            </h2>
+            <p className="mt-1 text-sm text-neutral-500">
+              {isDefaultLocation 
+                ? "Showing popular kitchens in Dhaka (Enable location for exact tracking)" 
+                : "Homemade kitchens near your current location."}
+            </p>
+          </div>
+        </div>
+        <div className="mt-6">
+          {locationLoading ? (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="h-28 animate-pulse rounded-xl bg-neutral-100 border border-neutral-200" />
+              ))}
+            </div>
+          ) : locationError ? (
+            <p className="rounded-xl border border-dashed border-neutral-300 bg-white px-6 py-8 text-center text-sm text-neutral-500">
+              {locationError}
+            </p>
+          ) : nearbyRestaurants.length === 0 ? (
+            <p className="rounded-xl border border-dashed border-neutral-300 bg-white px-6 py-8 text-center text-sm text-neutral-500">
+              No restaurants found nearby right now.
+            </p>
+          ) : (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {nearbyRestaurants.map((restaurant) => (
+                <div
+                  key={restaurant.id}
+                  className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm transition hover:shadow-md"
+                >
+                  <h3 className="font-semibold text-lg text-neutral-900">{restaurant.name}</h3>
+                  <p className="text-sm text-neutral-500 mt-1">
+                    {restaurant.email}
+                  </p>
+                  <div className="mt-3 flex items-center justify-between text-xs">
+                    <span className="rounded-full bg-brand-50 px-3 py-1 font-medium text-brand-700">
+                      📍 {Number(restaurant.distance).toFixed(2)} km away
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </section>
