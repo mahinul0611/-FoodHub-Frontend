@@ -89,7 +89,9 @@ export default function HomePage() {
     setLocationLoading(true);
     setLocationError(null);
     try {
-      const payload = await api.get(`/provider/nearby?lat=${lat}&lng=${lng}&radius=15`);
+      const payload = await api.get(
+        `/provider/nearby?lat=${lat}&lng=${lng}&radius=15`,
+      );
       const data = (payload as any)?.data ?? payload;
       setNearbyRestaurants(asArray<any>(data));
     } catch (err) {
@@ -115,7 +117,7 @@ export default function HomePage() {
           // Fallback to default location (Dhaka) if permission denied
           setIsDefaultLocation(true);
           void loadNearby(DEFAULT_LAT, DEFAULT_LNG);
-        }
+        },
       );
     } else {
       // Fallback if not supported
@@ -228,56 +230,51 @@ export default function HomePage() {
       </section>
 
       {/* Section 2.5: Restaurants Near You (Location Based with Default Fallback) */}
-      <section className="mx-auto max-w-6xl px-4 pb-14">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-2">
-          <div>
-            <h2 className="text-2xl font-bold text-neutral-900">
-              Restaurants near you 📍
-            </h2>
-            <p className="mt-1 text-sm text-neutral-500">
-              {isDefaultLocation 
-                ? "Showing popular kitchens in Dhaka (Enable location for exact tracking)" 
-                : "Homemade kitchens near your current location."}
-            </p>
+      <div className="mt-6">
+        {locationLoading ? (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div
+                key={i}
+                className="h-28 animate-pulse rounded-xl bg-neutral-100 border border-neutral-200"
+              />
+            ))}
           </div>
-        </div>
-        <div className="mt-6">
-          {locationLoading ? (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-28 animate-pulse rounded-xl bg-neutral-100 border border-neutral-200" />
-              ))}
-            </div>
-          ) : locationError ? (
-            <p className="rounded-xl border border-dashed border-neutral-300 bg-white px-6 py-8 text-center text-sm text-neutral-500">
-              {locationError}
-            </p>
-          ) : nearbyRestaurants.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-neutral-300 bg-white px-6 py-8 text-center text-sm text-neutral-500">
-              No restaurants found nearby right now.
-            </p>
-          ) : (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {nearbyRestaurants.map((restaurant) => (
-                <div
-                  key={restaurant.id}
-                  className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm transition hover:shadow-md"
-                >
-                  <h3 className="font-semibold text-lg text-neutral-900">{restaurant.name}</h3>
-                  <p className="text-sm text-neutral-500 mt-1">
-                    {restaurant.email}
-                  </p>
-                  <div className="mt-3 flex items-center justify-between text-xs">
-                    <span className="rounded-full bg-brand-50 px-3 py-1 font-medium text-brand-700">
-                      📍 {Number(restaurant.distance).toFixed(2)} km away
-                    </span>
-                  </div>
+        ) : locationError ? (
+          <p className="rounded-xl border border-dashed border-neutral-300 bg-white px-6 py-8 text-center text-sm text-neutral-500">
+            {locationError}
+          </p>
+        ) : nearbyRestaurants.length === 0 ? (
+          <p className="rounded-xl border border-dashed border-neutral-300 bg-white px-6 py-8 text-center text-sm text-neutral-500">
+            No restaurants found nearby right now.
+          </p>
+        ) : (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {nearbyRestaurants.map((restaurant) => (
+              <Link
+                key={restaurant.id}
+                href={`/meals?providerId=${restaurant.id}`}
+                className="block rounded-xl border border-neutral-200 bg-white p-5 shadow-sm transition hover:shadow-md hover:border-brand-300"
+              >
+                <h3 className="font-semibold text-lg text-neutral-900">
+                  {restaurant.name}
+                </h3>
+                <p className="text-sm text-neutral-500 mt-1">
+                  {restaurant.email}
+                </p>
+                <div className="mt-3 flex items-center justify-between text-xs">
+                  <span className="rounded-full bg-brand-50 px-3 py-1 font-medium text-brand-700">
+                    📍 {Number(restaurant.distance).toFixed(2)} km away
+                  </span>
+                  <span className="text-brand-600 font-medium hover:underline">
+                    View meals {"\u2192"}
+                  </span>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Section 3: Featured meals */}
       <section className="bg-neutral-50">
