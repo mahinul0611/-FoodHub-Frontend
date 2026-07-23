@@ -79,7 +79,7 @@ export default function ProviderOrdersPage() {
       // Incoming orders for a provider may be exposed on different routes
       // depending on the backend, so try the provider-specific endpoints
       // first and fall back to the generic /orders route.
-      const endpoints = ["/provider/orders"];
+      const endpoints = ["/provider/orders", "/provider", "/orders"];
       let list: Order[] = [];
       let succeeded = false;
       let lastError: unknown = null;
