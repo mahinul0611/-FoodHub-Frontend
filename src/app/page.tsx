@@ -89,7 +89,7 @@ export default function HomePage() {
     setLocationLoading(true);
     setLocationError(null);
     try {
-      const payload = await api.get(`/providers/nearby?lat=${lat}&lng=${lng}&radius=15`);
+      const payload = await api.get(`/provider/nearby?lat=${lat}&lng=${lng}&radius=15`);
       const data = (payload as any)?.data ?? payload;
       setNearbyRestaurants(asArray<any>(data));
     } catch (err) {
