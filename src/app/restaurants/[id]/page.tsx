@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { MealCard } from "@/components/meal-card";
-import { EmptyState, ErrorState, Spinner } from "@/components/ui";
+import { Button, EmptyState, ErrorState, Spinner } from "@/components/ui";
 import { api, asArray, getErrorMessage } from "@/lib/api";
 import type { Meal } from "@/lib/types";
+
+const PAGE_SIZE = 9; // Prottek page-e koyta meal dekhabe
 
 export default function RestaurantDetailPage() {
   const params = useParams<{ id: string }>();
@@ -15,6 +17,7 @@ export default function RestaurantDetailPage() {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
 
   const load = useCallback(async () => {
     if (!restaurantId) return;
@@ -33,6 +36,18 @@ export default function RestaurantDetailPage() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  const totalPages = Math.max(1, Math.ceil(meals.length / PAGE_SIZE));
+
+  const paginatedMeals = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return meals.slice(start, start + PAGE_SIZE);
+  }, [meals, page]);
+
+  const goToPage = (nextPage: number) => {
+    setPage(nextPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const restaurantName = meals[0]?.provider?.name ?? "Restaurant";
 
@@ -77,10 +92,32 @@ export default function RestaurantDetailPage() {
           </div>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {meals.map((meal) => (
+            {paginatedMeals.map((meal) => (
               <MealCard key={meal.id} meal={meal} />
             ))}
           </div>
+
+          {totalPages > 1 ? (
+            <div className="mt-8 flex items-center justify-center gap-3">
+              <Button
+                variant="secondary"
+                disabled={page <= 1}
+                onClick={() => goToPage(page - 1)}
+              >
+                {"\u2190"} Previous
+              </Button>
+              <span className="text-sm font-medium text-neutral-600">
+                Page {page} of {totalPages}
+              </span>
+              <Button
+                variant="secondary"
+                disabled={page >= totalPages}
+                onClick={() => goToPage(page + 1)}
+              >
+                Next {"\u2192"}
+              </Button>
+            </div>
+          ) : null}
         </>
       )}
     </div>
