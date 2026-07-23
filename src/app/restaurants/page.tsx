@@ -11,6 +11,7 @@ import {
 } from "@/components/ui";
 import { api, asArray, getErrorMessage } from "@/lib/api";
 import type { Meal } from "@/lib/types";
+import { Pagination } from "@/components/pagination"; 
 
 type Restaurant = {
   id: string;
@@ -112,25 +113,11 @@ export default function RestaurantsPage() {
           </div>
 
           {totalPages > 1 ? (
-            <div className="mt-8 flex items-center justify-center gap-3">
-              <Button
-                variant="secondary"
-                disabled={page <= 1}
-                onClick={() => goToPage(page - 1)}
-              >
-                {"\u2190"} Previous
-              </Button>
-              <span className="text-sm font-medium text-neutral-600">
-                Page {page} of {totalPages}
-              </span>
-              <Button
-                variant="secondary"
-                disabled={page >= totalPages}
-                onClick={() => goToPage(page + 1)}
-              >
-                Next {"\u2192"}
-              </Button>
-            </div>
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={goToPage}
+            />
           ) : null}
         </>
       )}

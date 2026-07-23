@@ -4,9 +4,10 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { MealCard } from "@/components/meal-card";
-import { Button, EmptyState, ErrorState, Spinner } from "@/components/ui";
+import { EmptyState, ErrorState, Spinner } from "@/components/ui";
 import { api, asArray, getErrorMessage } from "@/lib/api";
 import type { Meal } from "@/lib/types";
+import { Pagination } from "@/components/pagination"; 
 
 const PAGE_SIZE = 9; // Prottek page-e koyta meal dekhabe
 
@@ -98,25 +99,11 @@ export default function RestaurantDetailPage() {
           </div>
 
           {totalPages > 1 ? (
-            <div className="mt-8 flex items-center justify-center gap-3">
-              <Button
-                variant="secondary"
-                disabled={page <= 1}
-                onClick={() => goToPage(page - 1)}
-              >
-                {"\u2190"} Previous
-              </Button>
-              <span className="text-sm font-medium text-neutral-600">
-                Page {page} of {totalPages}
-              </span>
-              <Button
-                variant="secondary"
-                disabled={page >= totalPages}
-                onClick={() => goToPage(page + 1)}
-              >
-                Next {"\u2192"}
-              </Button>
-            </div>
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={goToPage}
+            />
           ) : null}
         </>
       )}
