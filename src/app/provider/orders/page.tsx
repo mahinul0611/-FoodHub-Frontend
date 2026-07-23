@@ -72,39 +72,38 @@ export default function ProviderOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
- const load = useCallback(async () => {
-  setLoading(true);
-  setError(null);
-  try {
-    // Incoming orders for a provider may be exposed on different routes
-    // depending on the backend, so try the provider-specific endpoints
-    // first and fall back to the generic /orders route.
-    const endpoints = ["/provider/orders", "/provider", "/orders"];
-    let list: Order[] = [];
-    let succeeded = false;
-    let lastError: unknown = null;
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Incoming orders for a provider may be exposed on different routes
+      // depending on the backend, so try the provider-specific endpoints
+      // first and fall back to the generic /orders route.
+      const endpoints = ["/provider/orders"];
+      let list: Order[] = [];
+      let succeeded = false;
+      let lastError: unknown = null;
 
-    for (const endpoint of endpoints) {
-      try {
-        const payload = await api.get(endpoint);
-        succeeded = true;
-        list = asArray<Order>(payload);
-        if (list.length > 0) break;
-      } catch (err) {
-        lastError = err;
+      for (const endpoint of endpoints) {
+        try {
+          const payload = await api.get(endpoint);
+          succeeded = true;
+          list = asArray<Order>(payload);
+          if (list.length > 0) break;
+        } catch (err) {
+          lastError = err;
+        }
       }
+      if (!succeeded) {
+        throw lastError ?? new Error("Failed to load orders");
+      }
+      setOrders(list);
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setLoading(false);
     }
-
-    if (!succeeded) {
-      throw lastError ?? new Error("Failed to load orders");
-    }
-    setOrders(list);
-  } catch (err) {
-    setError(getErrorMessage(err));
-  } finally {
-    setLoading(false);
-  }
-}, []);
+  }, []);
 
   useEffect(() => {
     void load();
