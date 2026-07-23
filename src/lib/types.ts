@@ -134,6 +134,6 @@ export interface Complaint {
 }
 
 
-export const MEAL_STATUSES = ["AVAILABLE", "UNAVAILABLE"] as const;
+export const MEAL_STATUSES = ["AVAILABLE", "STOCKOUT"] as const;
 
 export const USER_STATUSES = ["ACTIVATE", "SUSPEND"] as const;

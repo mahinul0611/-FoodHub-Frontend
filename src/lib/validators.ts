@@ -48,7 +48,7 @@ export const mealUpdateSchema = z.object({
     .string()
     .trim()
     .min(10, "Description must be at least 10 characters"),
-  status: z.enum(["AVAILABLE", "UNAVAILABLE"], {
+status: z.enum(["AVAILABLE", "STOCKOUT"], {
     errorMap: () => ({ message: "Select a status" }),
   }),
 });

@@ -28,7 +28,7 @@ export function placeholderFor(id: string): string {
 
 export function isSoldOut(meal: Meal): boolean {
   return (
-    (meal.status ?? "").toUpperCase() === "UNAVAILABLE" ||
+   ["UNAVAILABLE", "STOCKOUT"].includes((meal.status ?? "").toUpperCase()) ||
     (typeof meal.quantity === "number" && meal.quantity <= 0)
   );
 }
