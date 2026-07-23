@@ -20,6 +20,7 @@ const EMPTY_FORM = {
   code: "",
   discountType: "PERCENT",
   value: "",
+  maxDiscount: "",
   minOrder: "",
   maxUses: "",
   expiresAt: "",
@@ -77,6 +78,9 @@ export default function AdminCouponsPage() {
         discountType: form.discountType,
         value,
         minOrder: form.minOrder ? Number(form.minOrder) : 0,
+        ...(form.discountType === "PERCENT" && form.maxDiscount
+          ? { maxDiscount: Number(form.maxDiscount) }
+          : {}),
         ...(form.maxUses ? { maxUses: Number(form.maxUses) } : {}),
         ...(form.expiresAt ? { expiresAt: form.expiresAt } : {}),
       });
@@ -156,6 +160,19 @@ export default function AdminCouponsPage() {
               }
             />
           </Field>
+          {form.discountType === "PERCENT" ? (
+            <Field label="Max discount amount (optional)">
+              <Input
+                type="number"
+                min={1}
+                value={form.maxDiscount}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, maxDiscount: e.target.value }))
+                }
+                placeholder="e.g. 100"
+              />
+            </Field>
+          ) : null}
           <Field label="Minimum order (optional)">
             <Input
               type="number"
@@ -229,7 +246,11 @@ export default function AdminCouponsPage() {
                 </div>
                 <p className="mt-1 text-sm text-neutral-500">
                   {item.discountType === "PERCENT"
-                    ? `${item.value}% off`
+                    ? `${item.value}% off${
+                        item.maxDiscount
+                          ? ` (max ${formatPrice(Number(item.maxDiscount))})`
+                          : ""
+                      }`
                     : `${formatPrice(item.value)} off`}
                   {Number(item.minOrder ?? 0) > 0
                     ? ` \u00B7 min order ${formatPrice(Number(item.minOrder))}`

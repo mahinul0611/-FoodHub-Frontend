@@ -147,6 +147,7 @@ export interface Coupon {
   code: string;
   discountType: "PERCENT" | "FLAT";
   value: number;
+  maxDiscount?: number | null;
   minOrder?: number | string | null;
   maxUses?: number | null;
   usedCount?: number;
