@@ -12,6 +12,7 @@ import { roleOf } from "@/lib/utils";
 const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/meals", label: "Meals" },
+  { href: "/restaurants", label: "Restaurants" },
 ];
 
 function dashboardHref(role: string): string {

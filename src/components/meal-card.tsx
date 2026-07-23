@@ -28,7 +28,7 @@ export function placeholderFor(id: string): string {
 
 export function isSoldOut(meal: Meal): boolean {
   return (
-   ["UNAVAILABLE", "STOCKOUT"].includes((meal.status ?? "").toUpperCase()) ||
+    ["UNAVAILABLE", "STOCKOUT"].includes((meal.status ?? "").toUpperCase()) ||
     (typeof meal.quantity === "number" && meal.quantity <= 0)
   );
 }
@@ -69,6 +69,14 @@ export function MealCard({ meal }: { meal: Meal }) {
             <Badge className={statusBadgeClass("UNAVAILABLE")}>Sold out</Badge>
           ) : null}
         </div>
+        {meal.provider?.id && meal.provider?.name ? (
+          <Link
+            href={`/restaurants/${meal.provider.id}`}
+            className="line-clamp-1 text-xs text-neutral-500 hover:text-brand-700"
+          >
+            {"\uD83C\uDFEA"} {meal.provider.name}
+          </Link>
+        ) : null}
         {meal.category?.name ? (
           <p className="text-xs font-medium uppercase tracking-wide text-brand-600">
             {meal.category.name}

@@ -28,7 +28,7 @@ export function ReorderButton({ order }: { order: Order }) {
         throw new Error("This order has no items to reorder.");
       }
 
-      const meals = asArray<Meal>(await api.get("/meals/"));
+      const meals = asArray<Meal>(await api.get("/meals/?limit=1000"));
       const mealById = new Map(meals.map((meal) => [meal.id, meal]));
 
       let added = 0;
