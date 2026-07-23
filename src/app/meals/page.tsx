@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { MealCard } from "@/components/meal-card";
 import {
+  Button,
   EmptyState,
   ErrorState,
   Input,
@@ -17,68 +18,91 @@ import { toNumber } from "@/lib/utils";
 
 type SortOption = "default" | "price-asc" | "price-desc" | "name";
 
+const PAGE_SIZE = 10;
+
 export default function MealsPage() {
   const [meals, setMeals] = useState<Meal[]>([]);
+  const [total, setTotal] = useState(0);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [sort, setSort] = useState<SortOption>("default");
+  const [page, setPage] = useState(1);
 
   // Read the optional ?category= filter from the URL on first load.
   useEffect(() => {
-    const fromUrl = new URLSearchParams(window.location.search).get("category");
+    const fromUrl = new URLSearchParams(window.location.search).get(
+      "category",
+    );
     if (fromUrl) setCategoryId(fromUrl);
   }, []);
+
+  // Debounce the search input so we don't hit the API on every keystroke.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search.trim());
+      setPage(1);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
+      const params = new URLSearchParams();
+      params.set("page", String(page));
+      params.set("limit", String(PAGE_SIZE));
+      if (debouncedSearch) params.set("searchTerm", debouncedSearch);
+      if (categoryId) params.set("categoryId", categoryId);
+
       const [mealsPayload, categoriesResult] = await Promise.all([
-        api.get("/meals/"),
+        api.get(`/meals/?${params.toString()}`),
         loadCategories(),
       ]);
-      setMeals(asArray<Meal>(mealsPayload));
+
+      const list = asArray<Meal>(mealsPayload);
+      const raw = mealsPayload as {
+        meta?: { total?: number };
+        data?: { meta?: { total?: number } };
+      };
+      const meta = raw?.data?.meta ?? raw?.meta;
+      setMeals(list);
+      setTotal(Number(meta?.total ?? list.length));
       setCategories(categoriesResult);
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [page, debouncedSearch, categoryId]);
 
   useEffect(() => {
     void load();
   }, [load]);
 
-  const filtered = useMemo(() => {
-    const term = search.trim().toLowerCase();
-    let result = meals.filter((meal) => {
-      const matchesSearch =
-        !term ||
-        meal.name.toLowerCase().includes(term) ||
-        (meal.description ?? "").toLowerCase().includes(term);
-      const mealCategory = meal.categoryId ?? meal.category?.id ?? "";
-      const matchesCategory = !categoryId || mealCategory === categoryId;
-      return matchesSearch && matchesCategory;
-    });
-
+  const sorted = useMemo(() => {
     if (sort === "price-asc") {
-      result = [...result].sort(
-        (a, b) => toNumber(a.price) - toNumber(b.price),
-      );
-    } else if (sort === "price-desc") {
-      result = [...result].sort(
-        (a, b) => toNumber(b.price) - toNumber(a.price),
-      );
-    } else if (sort === "name") {
-      result = [...result].sort((a, b) => a.name.localeCompare(b.name));
+      return [...meals].sort((a, b) => toNumber(a.price) - toNumber(b.price));
     }
-    return result;
-  }, [meals, search, categoryId, sort]);
+    if (sort === "price-desc") {
+      return [...meals].sort((a, b) => toNumber(b.price) - toNumber(a.price));
+    }
+    if (sort === "name") {
+      return [...meals].sort((a, b) => a.name.localeCompare(b.name));
+    }
+    return meals;
+  }, [meals, sort]);
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+  const goToPage = (nextPage: number) => {
+    setPage(nextPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
@@ -97,7 +121,10 @@ export default function MealsPage() {
         />
         <Select
           value={categoryId}
-          onChange={(e) => setCategoryId(e.target.value)}
+          onChange={(e) => {
+            setCategoryId(e.target.value);
+            setPage(1);
+          }}
           aria-label="Filter by category"
         >
           <option value="">All categories</option>
@@ -127,21 +154,45 @@ export default function MealsPage() {
         </div>
       ) : error ? (
         <ErrorState message={error} onRetry={load} />
-      ) : filtered.length === 0 ? (
+      ) : sorted.length === 0 ? (
         <EmptyState
           title="No meals found"
           description={
-            meals.length === 0
-              ? "No meals are available right now. Please check back soon."
-              : "Try a different search term or category filter."
+            debouncedSearch || categoryId
+              ? "Try a different search term or category filter."
+              : "No meals are available right now. Please check back soon."
           }
         />
       ) : (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filtered.map((meal) => (
-            <MealCard key={meal.id} meal={meal} />
-          ))}
-        </div>
+        <>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {sorted.map((meal) => (
+              <MealCard key={meal.id} meal={meal} />
+            ))}
+          </div>
+
+          {totalPages > 1 ? (
+            <div className="mt-8 flex items-center justify-center gap-3">
+              <Button
+                variant="secondary"
+                disabled={page <= 1}
+                onClick={() => goToPage(page - 1)}
+              >
+                {"\u2190"} Previous
+              </Button>
+              <span className="text-sm font-medium text-neutral-600">
+                Page {page} of {totalPages}
+              </span>
+              <Button
+                variant="secondary"
+                disabled={page >= totalPages}
+                onClick={() => goToPage(page + 1)}
+              >
+                Next {"\u2192"}
+              </Button>
+            </div>
+          ) : null}
+        </>
       )}
     </div>
   );
