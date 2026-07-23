@@ -267,9 +267,7 @@ export default function HomePage() {
                   className="block rounded-xl border border-neutral-200 bg-white p-5 shadow-sm transition hover:shadow-md hover:border-brand-300"
                 >
                   <h3 className="font-semibold text-lg text-neutral-900">{restaurant.name}</h3>
-                  <p className="text-sm text-neutral-500 mt-1">
-                    {restaurant.email}
-                  </p>
+                  
                   <div className="mt-3 flex items-center justify-between text-xs">
                     <span className="rounded-full bg-brand-50 px-3 py-1 font-medium text-brand-700">
                       📍 {Number(restaurant.distance).toFixed(2)} km away
