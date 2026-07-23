@@ -46,12 +46,13 @@ export function statusBadgeClass(status?: string): string {
       "COMPLETED",
       "READY",
       "RESOLVED",
+      "PAID"
     ].includes(s)
   ) {
     return "bg-emerald-50 text-emerald-700 border-emerald-200";
   }
   if (
-    ["CANCELLED", "BLOCKED", "SUSPEND", "UNAVAILABLE","STOCKOUT", "REJECTED"].includes(s)
+    ["CANCELLED", "BLOCKED", "SUSPEND", "UNAVAILABLE","STOCKOUT", "REJECTED", "FAILED"].includes(s)
   ) {
     return "bg-red-50 text-red-700 border-red-200";
   }

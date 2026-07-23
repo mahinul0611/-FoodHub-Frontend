@@ -7,7 +7,7 @@ export interface AppUser {
   email?: string;
   role?: Role | string;
   phone?: string;
-  phoneVerified?: boolean;   // 👈 notun
+  phoneVerified?: boolean; // 👈 notun
   image?: string | null;
   status?: string;
   address?: string;
@@ -67,6 +67,9 @@ export interface Order {
   status?: string;
   address?: string;
   contactNumber?: string;
+  paymentMethod?: string;
+  paymentStatus?: string;
+  transactionId?: string;
   totalPrice?: number | string;
   total?: number | string;
   items?: OrderItem[];
@@ -87,13 +90,12 @@ export interface AdminStats {
 }
 
 export const ORDER_STATUSES = [
-    "PLACED",
+  "PLACED",
   "PREPARING",
   "READY",
   "DELIVERED",
   "CANCELLED",
 ] as const;
-
 
 export const COMPLAINT_CATEGORIES = [
   "FOOD_QUALITY",
@@ -133,7 +135,8 @@ export interface Complaint {
   [key: string]: unknown;
 }
 
-
 export const MEAL_STATUSES = ["AVAILABLE", "STOCKOUT"] as const;
 
 export const USER_STATUSES = ["ACTIVATE", "SUSPEND"] as const;
+
+export const PAYMENT_METHODS = ["COD", "SSLCOMMERZ"] as const;

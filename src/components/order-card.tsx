@@ -35,9 +35,16 @@ export function OrderCard({
             {formatDate(order.createdAt)}
           </p>
         </div>
-        <Badge className={statusBadgeClass(order.status)}>
-          {order.status ?? "PLACED"}
-        </Badge>
+       <div className="flex flex-wrap items-center gap-2">
+  {typeof order.paymentStatus === "string" && order.paymentStatus ? (
+    <Badge className={statusBadgeClass(order.paymentStatus)}>
+      {order.paymentStatus}
+    </Badge>
+  ) : null}
+  <Badge className={statusBadgeClass(order.status)}>
+    {order.status ?? "PLACED"}
+  </Badge>
+</div>
       </div>
 
       {showCustomer && customer ? (

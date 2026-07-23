@@ -3,36 +3,40 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { useAuth } from "@/lib/auth-context";
 import { RequireAuth } from "@/components/require-auth";
 import {
   Button,
+  cn,
   EmptyState,
   Field,
   Input,
   PageHeader,
   Textarea,
 } from "@/components/ui";
-import { api, getErrorMessage } from "@/lib/api";
+import { api, getErrorMessage, unwrap } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
 import { useToast } from "@/lib/toast-context";
+import { PAYMENT_METHODS, PHONE_VERIFICATION_ENABLED } from "@/lib/types";
 import { formatPrice, toNumber } from "@/lib/utils";
 import { checkoutSchema, zodFieldErrors } from "@/lib/validators";
-import { PHONE_VERIFICATION_ENABLED } from "@/lib/types";
+
+type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
 function CheckoutContent() {
-  const { user } = useAuth();
   const router = useRouter();
+  const { user } = useAuth();
   const { items, total, clear } = useCart();
   const { toast } = useToast();
 
+  const phoneUnverified =
+    PHONE_VERIFICATION_ENABLED && user?.phoneVerified === false;
+
   const [form, setForm] = useState({ address: "", contactNumber: "" });
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("COD");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-
-const phoneUnverified =
-  PHONE_VERIFICATION_ENABLED && user?.phoneVerified === false;
 
   if (items.length === 0) {
     return (
@@ -67,7 +71,7 @@ const phoneUnverified =
     setSubmitting(true);
 
     try {
-      await api.post("/orders", {
+      const payload = await api.post("/orders", {
         address: parsed.data.address,
         contactNumber: parsed.data.contactNumber,
         items: items.map((item) => ({
@@ -75,13 +79,34 @@ const phoneUnverified =
           quantity: item.quantity,
         })),
       });
+
+      if (paymentMethod === "SSLCOMMERZ") {
+        const order = unwrap<{ id?: string }>(payload);
+        const orderId = order?.id;
+        if (!orderId) {
+          throw new Error(
+            "Your order was placed, but the payment could not start. Check My orders.",
+          );
+        }
+        const initPayload = await api.post("/payments/init", { orderId });
+        const init = unwrap<{ paymentUrl?: string }>(initPayload);
+        if (!init?.paymentUrl) {
+          throw new Error(
+            "Your order was placed, but the payment could not start. Check My orders.",
+          );
+        }
+        clear();
+        window.location.href = init.paymentUrl;
+        return;
+      }
+
       clear();
       toast("Order placed successfully!", "success");
       router.push("/dashboard/orders");
     } catch (err) {
       setFormError(getErrorMessage(err));
-    } finally {
       setSubmitting(false);
+      return;
     }
   };
 
@@ -99,17 +124,17 @@ const phoneUnverified =
           className="space-y-4 rounded-xl border border-neutral-200 bg-white p-6"
         >
           {phoneUnverified ? (
-  <div
-    role="alert"
-    className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
-  >
-    Your phone number is not verified yet. Please{" "}
-    <Link href="/me" className="font-semibold underline">
-      verify your phone number
-    </Link>{" "}
-    before placing an order.
-  </div>
-) : null}
+            <div
+              role="alert"
+              className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+            >
+              Your phone number is not verified yet. Please{" "}
+              <Link href="/me" className="font-semibold underline">
+                verify your phone number
+              </Link>{" "}
+              before placing an order.
+            </div>
+          ) : null}
 
           {formError ? (
             <div
@@ -144,12 +169,49 @@ const phoneUnverified =
             />
           </Field>
 
-          <Button 
-          type="submit" 
-          loading={submitting}
-          disabled={phoneUnverified}
-           className="w-full">
-            Place order {"\u00B7"} {formatPrice(total)}
+          <Field label="Payment method">
+            <div className="grid gap-2 sm:grid-cols-2">
+              {PAYMENT_METHODS.map((method) => (
+                <label
+                  key={method}
+                  className={cn(
+                    "flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 text-sm transition",
+                    paymentMethod === method
+                      ? "border-brand-600 bg-brand-50"
+                      : "border-neutral-200 bg-white hover:border-neutral-300",
+                  )}
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value={method}
+                    checked={paymentMethod === method}
+                    onChange={() => setPaymentMethod(method)}
+                    className="accent-brand-600"
+                  />
+                  <span>
+                    <span className="block font-medium text-neutral-900">
+                      {method === "COD" ? "Cash on delivery" : "Pay online"}
+                    </span>
+                    <span className="block text-xs text-neutral-500">
+                      {method === "COD"
+                        ? "Pay when your food arrives"
+                        : "Cards, bKash & more via SSLCommerz"}
+                    </span>
+                  </span>
+                </label>
+              ))}
+            </div>
+          </Field>
+
+          <Button
+            type="submit"
+            loading={submitting}
+            disabled={phoneUnverified}
+            className="w-full"
+          >
+            {paymentMethod === "SSLCOMMERZ" ? "Pay now" : "Place order"}{" "}
+            {"\u00B7"} {formatPrice(total)}
           </Button>
         </form>
 
@@ -188,7 +250,6 @@ const phoneUnverified =
     </div>
   );
 }
-
 
 export default function CheckoutPage() {
   return (
