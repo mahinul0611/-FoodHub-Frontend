@@ -36,7 +36,7 @@ export function OrderCard({
           </p>
         </div>
         <Badge className={statusBadgeClass(order.status)}>
-          {order.status ?? "PENDING"}
+          {order.status ?? "PLACED"}
         </Badge>
       </div>
 

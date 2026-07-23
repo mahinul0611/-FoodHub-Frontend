@@ -87,8 +87,7 @@ export interface AdminStats {
 }
 
 export const ORDER_STATUSES = [
-  "PENDING",
-  "CONFIRMED",
+    "PLACED",
   "PREPARING",
   "READY",
   "DELIVERED",
