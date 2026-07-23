@@ -34,20 +34,35 @@ function ProfileDetailsForm() {
     setError(null);
     setSaving(true);
     const phoneChanged = form.phone.trim() !== (user?.phone ?? "");
+
     try {
+      // 1. Better Auth diye User table update
       const { error: apiError } = await authClient.updateUser({
         name: form.name.trim(),
         ...(phoneChanged ? { phone: form.phone.trim() } : {}),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
+
       if (apiError) {
         setError(apiError.message ?? "Could not update your profile.");
         return;
       }
+
+      // 2. 🔥 NEW FIX: Provider hole sathe sathe Restaurant name o update kore dibe
+      if (roleOf(user) === "PROVIDER" && user?.id) {
+        try {
+          await api.patch(`/provider/profile/${user.id}`, {
+            name: form.name.trim(),
+          });
+        } catch (syncErr) {
+          console.error("Failed to sync provider profile name:", syncErr);
+        }
+      }
+
       await refresh();
       toast(
         phoneChanged
-          ? "Profile updated \u2014 please verify your new phone number"
+          ? "Profile updated — please verify your new phone number"
           : "Profile updated",
         "success",
       );
