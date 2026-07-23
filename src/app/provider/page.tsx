@@ -43,7 +43,7 @@ export default function ProviderOverviewPage() {
       if (!cancelled) setProvider(providerPayload);
 
       try {
-        const meals = asArray<Meal>(await api.get("/meals/"));
+        const meals = asArray<Meal>(await api.get("/meals/?limit=1000"));
         const ids = new Set<string>([user.id]);
         for (const key of ["id", "userId", "providerId"]) {
           const value = providerPayload?.[key];

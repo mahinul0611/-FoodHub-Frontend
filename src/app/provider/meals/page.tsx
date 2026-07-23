@@ -51,7 +51,7 @@ export default function ProviderMealsPage() {
       if (embedded) {
         setMeals(embedded);
       } else {
-        const all = asArray<Meal>(await api.get("/meals/"));
+        const all = asArray<Meal>(await api.get("/meals/?limit=1000"));
         setMeals(
           all.filter((meal) =>
             [meal.providerId, meal.provider?.id, meal.provider?.userId].some(
