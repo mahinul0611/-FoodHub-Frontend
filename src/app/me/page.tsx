@@ -21,34 +21,21 @@ function ProfileDetailsForm() {
     setForm({ name: user?.name ?? "", phone: user?.phone ?? "" });
   }, [user?.name, user?.phone]);
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+ const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (form.name.trim().length < 2) {
-      setError("Name must be at least 2 characters.");
-      return;
-    }
-    if (form.phone.trim().length < 6) {
-      setError("Enter a valid phone number.");
-      return;
-    }
     setError(null);
     setSaving(true);
     const phoneChanged = form.phone.trim() !== (user?.phone ?? "");
 
     try {
-      // 1. Better Auth diye User table update
-      const { error: apiError } = await authClient.updateUser({
+      // 🔥 Better Auth এর বদলে তোমার কাস্টম ব্যাকএন্ড রাউটে রিকোয়েস্ট পাঠাও 
+      // (যেখানে Zod ভ্যালিডেশন মিডলওয়্যার সেট করা আছে)
+      await api.put("/me", {
         name: form.name.trim(),
-        ...(phoneChanged ? { phone: form.phone.trim() } : {}),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any);
+        phone: form.phone.trim(),
+      });
 
-      if (apiError) {
-        setError(apiError.message ?? "Could not update your profile.");
-        return;
-      }
-
-      // 2. 🔥 NEW FIX: Provider hole sathe sathe Restaurant name o update kore dibe
+      // 🔥 Provider হলে Restaurant name সিঙ্ক করার কোড
       if (roleOf(user) === "PROVIDER" && user?.id) {
         try {
           await api.patch(`/provider/profile/${user.id}`, {
@@ -67,6 +54,7 @@ function ProfileDetailsForm() {
         "success",
       );
     } catch (err) {
+      // ব্যাকএন্ডের Zod validation এরোর বা অন্য কোনো এরর এখানে দেখাবে
       setError(getErrorMessage(err));
     } finally {
       setSaving(false);
@@ -110,7 +98,7 @@ function ProfileDetailsForm() {
             type="tel"
             value={form.phone}
             onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-            placeholder="+8801XXXXXXXXX"
+            placeholder="01XXXXXXXXX"
             autoComplete="tel"
           />
         </Field>
