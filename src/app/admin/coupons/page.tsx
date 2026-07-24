@@ -35,6 +35,11 @@ export default function AdminCouponsPage() {
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+// ১. handleDelete ফাংশনটি কম্পোনেন্টের ভেতরে ডিক্লেয়ার করো
+const [deletingId, setDeletingId] = useState<string | null>(null);
+
+
+
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -105,6 +110,30 @@ export default function AdminCouponsPage() {
       setTogglingId(null);
     }
   };
+
+
+  
+
+const handleDeleteCoupon = async (item:Coupon, code: string) => {
+  if (!confirm(`Are you sure you want to delete coupon "${code}"?`)) {
+    return;
+  }
+
+  setDeletingId(item.id);
+  try {
+    // ব্যাকএন্ডের রাউটের সাথে মিলিয়ে এন্ডপয়েন্ট সেট করবে (যেমন: /admin/coupons/${id} অথবা /coupons/${id})
+    await api.delete(`/coupons/${item.id}`);
+    toast(`Coupon "${code}" deleted successfully`, "success");
+    
+    // স্টেট থেকে কুপন ফিল্টার করে সরিয়ে দেওয়া
+    setCoupons((prev) => prev.filter((coupon) => coupon.id !== item.id));
+  } catch (err) {
+    toast(getErrorMessage(err), "error");
+  } finally {
+    setDeletingId(null);
+  }
+};
+
 
   return (
     <div className="space-y-6">
@@ -270,6 +299,14 @@ export default function AdminCouponsPage() {
               >
                 {item.active ? "Deactivate" : "Activate"}
               </Button>
+<Button
+  type="button"
+  loading={deletingId === item.id}
+  className="bg-red-600 text-white hover:bg-red-700 text-xs px-3 py-1.5 ml-2"
+  onClick={() => handleDeleteCoupon(item, item.code)}>
+  Delete
+</Button>
+              
             </li>
           ))}
         </ul>
