@@ -110,7 +110,7 @@ export default function AdminProvidersPage() {
                       PROVIDER
                     </Badge>
                   </div>
-                  <p className="text-sm text-neutral-500">{provider.email}</p>
+                  <p className="text-sm text-neutral-500">Provider Email : {provider.email}</p>
                   <p className="text-xs text-neutral-400 mt-1">
                     Phone: {provider.phone || "N/A"}
                   </p>
