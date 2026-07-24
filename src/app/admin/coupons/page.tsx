@@ -292,21 +292,25 @@ const handleDeleteCoupon = async (item:Coupon, code: string) => {
                     : ""}
                 </p>
               </div>
-              <Button
-                variant="secondary"
-                loading={togglingId === item.id}
-                onClick={() => toggleActive(item)}
-              >
-                {item.active ? "Deactivate" : "Activate"}
-              </Button>
-<Button
-  type="button"
-  loading={deletingId === item.id}
-  className="bg-red-600 text-white hover:bg-red-700 text-xs px-3 py-1.5 ml-2"
-  onClick={() => handleDeleteCoupon(item, item.code)}>
-  Delete
-</Button>
-              
+
+              {/* 👈 এইখানে দুটি বাটনকে একটি div এর ভেতরে একসাথে রাখা হলো */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="secondary"
+                  loading={togglingId === item.id}
+                  onClick={() => toggleActive(item)}
+                >
+                  {item.active ? "Deactivate" : "Activate"}
+                </Button>
+                <Button
+                  type="button"
+                  loading={deletingId === item.id}
+                  className="bg-red-600 text-white hover:bg-red-700 text-xs px-3 py-1.5"
+                  onClick={() => handleDeleteCoupon(item, item.code)}
+                >
+                  Delete
+                </Button>
+              </div>
             </li>
           ))}
         </ul>
