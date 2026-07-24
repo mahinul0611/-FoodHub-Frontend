@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { api, unwrap, getErrorMessage } from "@/lib/api";
 import {
   Button,
@@ -10,6 +10,7 @@ import {
   Badge,
 } from "@/components/ui";
 import { useToast } from "@/lib/toast-context";
+import { Pagination } from "@/components/pagination";
 
 interface UserItem {
   id: string;
@@ -20,18 +21,20 @@ interface UserItem {
   isDeleted?: boolean;
 }
 
+const PAGE_SIZE = 10;
+
 export default function AdminProvidersPage() {
   const { toast } = useToast();
   const [providers, setProviders] = useState<UserItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
 
   const loadProviders = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      // Postman collection er /admin/users theke shob user ene role "PROVIDER" filter korchi
       const data = unwrap<UserItem[]>(await api.get("/admin/users"));
       const providerList = data.filter(
         (user) => user.role === "PROVIDER" && !user.isDeleted,
@@ -59,15 +62,33 @@ export default function AdminProvidersPage() {
 
     setDeletingId(userId);
     try {
-      // Ager banano Soft Delete API endpoint
       await api.delete(`/admin/providers/${userId}`);
       toast(`Provider "${name}" removed successfully`, "success");
-      setProviders((prev) => prev.filter((p) => p.id !== userId));
+      
+      const updated = providers.filter((p) => p.id !== userId);
+      setProviders(updated);
+
+      const newTotalPages = Math.max(1, Math.ceil(updated.length / PAGE_SIZE));
+      if (page > newTotalPages) {
+        setPage(newTotalPages);
+      }
     } catch (err) {
       toast(getErrorMessage(err), "error");
     } finally {
       setDeletingId(null);
     }
+  };
+
+  const totalPages = Math.max(1, Math.ceil(providers.length / PAGE_SIZE));
+
+  const paginatedProviders = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return providers.slice(start, start + PAGE_SIZE);
+  }, [providers, page]);
+
+  const goToPage = (nextPage: number) => {
+    setPage(nextPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   if (loading) {
@@ -96,7 +117,7 @@ export default function AdminProvidersPage() {
           </div>
         ) : (
           <div className="divide-y divide-neutral-200">
-            {providers.map((provider) => (
+            {paginatedProviders.map((provider) => (
               <div
                 key={provider.id}
                 className="flex items-center justify-between p-4 sm:p-6"
@@ -132,6 +153,16 @@ export default function AdminProvidersPage() {
           </div>
         )}
       </div>
+
+      {totalPages > 1 ? (
+        <div className="pt-2">
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={goToPage}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }
