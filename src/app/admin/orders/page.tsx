@@ -8,7 +8,7 @@ import { api, asArray, getErrorMessage } from "@/lib/api";
 import type { Order } from "@/lib/types";
 import { Pagination } from "@/components/pagination";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 5;
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
