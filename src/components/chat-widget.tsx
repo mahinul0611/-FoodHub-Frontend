@@ -24,20 +24,25 @@ export default function ChatWidget() {
     if (e) e.preventDefault();
     if (!input.trim() || loading) return;
 
-    const userMessage = input.trim();
+    const userMessageText = input.trim();
     setInput("");
-    
-    // ১. ইউজারের মেসেজ মেসেজ লিস্টে যোগ করা
-    setMessages((prev) => [...prev, { role: "user", text: userMessage }]);
+
+    // ১. আগের মেসেজগুলোর সাথে নতুন মেসেজ যোগ করে পুরো হিস্ট্রি রেডি করা
+    const updatedMessages: Message[] = [
+      ...messages,
+      { role: "user", text: userMessageText },
+    ];
+
+    setMessages(updatedMessages);
     setLoading(true);
 
     try {
-      // ২. ব্যাকএন্ড এপিআই কল করা
+      // ২. ব্যাকএন্ডে পুরো চ্যাট হিস্ট্রি (messages) পাঠানো
       const data = await api.post<{ success: boolean; reply: string }>("/chat", {
-        message: userMessage,
+        messages: updatedMessages, // 👈 পুরো চ্যাট হিস্ট্রি ব্যাকএন্ডে যাচ্ছে
       });
 
-      // ৩. এআই-এর রিপ্লাই লিস্টে যোগ করা
+      // ৩. এআই-এর রিপ্লাই মেসেজ লিস্টে যোগ করা
       setMessages((prev) => [
         ...prev,
         { role: "assistant", text: data.reply },
@@ -47,7 +52,7 @@ export default function ChatWidget() {
         ...prev,
         {
           role: "assistant",
-          text: "Sorry, I couldn't process your message. Please try again.",
+          text: "Dukhito! Kono সমস্যা হয়েছে। Abar chesta korun.",
         },
       ]);
     } finally {
