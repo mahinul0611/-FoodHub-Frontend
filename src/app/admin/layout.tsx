@@ -7,6 +7,7 @@ import { RequireAuth } from "@/components/require-auth";
 const NAV = [
   { href: "/admin", label: "Overview" },
   { href: "/admin/users", label: "Users" },
+  { href: "/admin/sessions", label: "User Session" },
   { href: "/admin/categories", label: "Categories" },
   { href: "/admin/orders", label: "Orders" },
   { href: "/admin/complaints", label: "Complaints" },
