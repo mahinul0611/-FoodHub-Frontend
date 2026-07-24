@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { api } from "@/lib/api"; 
 import { Button } from "./ui";
 
@@ -20,24 +20,42 @@ export default function ChatWidget() {
     },
   ]);
 
+  // ১. অটো-স্ক্রোলের জন্য Ref
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      scrollToBottom();
+    }
+  }, [messages, loading, isOpen]);
+
   const handleSend = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!input.trim() || loading) return;
 
-    const userMessage = input.trim();
+    const userMessageText = input.trim();
     setInput("");
-    
-    // ১. ইউজারের মেসেজ মেসেজ লিস্টে যোগ করা
-    setMessages((prev) => [...prev, { role: "user", text: userMessage }]);
+
+    // ২. আগের সব মেসেজের সাথে নতুন মেসেজ যোগ করে পুরো হিস্ট্রি তৈরি
+    const updatedMessages: Message[] = [
+      ...messages,
+      { role: "user", text: userMessageText },
+    ];
+
+    setMessages(updatedMessages);
     setLoading(true);
 
     try {
-      // ২. ব্যাকএন্ড এপিআই কল করা
+      // ৩. ব্যাকএন্ডে 'messages' ফিল্ডে পুরো চ্যাট হিস্ট্রি পাঠানো
       const data = await api.post<{ success: boolean; reply: string }>("/chat", {
-        message: userMessage,
+        messages: updatedMessages, // 👈 'message' এর জায়গায় 'messages' হবে
       });
 
-      // ৩. এআই-এর রিপ্লাই লিস্টে যোগ করা
+      // ৪. এআই-এর রিপ্লাই মেসেজ লিস্টে যুক্ত করা
       setMessages((prev) => [
         ...prev,
         { role: "assistant", text: data.reply },
@@ -47,7 +65,7 @@ export default function ChatWidget() {
         ...prev,
         {
           role: "assistant",
-          text: "Sorry, I couldn't process your message. Please try again.",
+          text: "Sorry, Something went Wrong!",
         },
       ]);
     } finally {
@@ -119,6 +137,8 @@ export default function ChatWidget() {
                 </div>
               </div>
             )}
+            {/* অটো-স্ক্রোলের টার্গেট ডিভ */}
+            <div ref={messagesEndRef} />
           </div>
 
           {/* ইনপুট ফর্ম */}
@@ -126,7 +146,7 @@ export default function ChatWidget() {
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown} // 👈 keydown ইভেন্ট হ্যান্ডলার যুক্ত করা হয়েছে
+              onKeyDown={handleKeyDown}
               placeholder="Ask about food, menu, or order..."
               rows={1}
               className="flex-1 border border-gray-300 rounded-xl px-4 py-2 text-sm outline-none focus:border-orange-500 text-black resize-none"
