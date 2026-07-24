@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { api } from "@/lib/api"; // Tomar api helper
-import { ErrorState } from "@/components/ui"; // Jodi na thake tahole simple error text dibe
+import { api } from "@/lib/api";
+import { ErrorState } from "@/components/ui";
 
 interface SessionData {
   id: string;
   ipAddress?: string;
   userAgent?: string;
-  createdAt: string; // BetterAuth e mostly createdAt ba expiresAt thake
+  createdAt: string;
   user: {
     name: string;
     email: string;
@@ -21,11 +21,15 @@ export default function AdminSessionsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Search ar Pagination er jonno notun states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10; // Ek page e 10 ta kore data dekhabe
+
   const fetchSessions = async () => {
     setLoading(true);
     setError(null);
     try {
-      // Backend er /admin/sessions endpoint e call
       const response = await api.get("/admin/sessions");
       const data = (response as any)?.data ?? response;
       setSessions(data);
@@ -40,7 +44,6 @@ export default function AdminSessionsPage() {
     fetchSessions();
   }, []);
 
-  // User-Agent string ke ektu clean kore dekhanor jonno (optional helper)
   const formatDevice = (ua?: string) => {
     if (!ua) return "Unknown Device";
     if (ua.includes("Windows")) return "Windows PC";
@@ -50,13 +53,46 @@ export default function AdminSessionsPage() {
     return "Other Device";
   };
 
+  // 1. Search Logic: Email, Name ba IP diye filter kora
+  const filteredSessions = sessions.filter((session) => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      session.user?.email.toLowerCase().includes(searchLower) ||
+      session.user?.name.toLowerCase().includes(searchLower) ||
+      (session.ipAddress && session.ipAddress.includes(searchLower))
+    );
+  });
+
+  // 2. Pagination Logic: filtered list theke shudhu current page er data ber kora
+  const totalPages = Math.ceil(filteredSessions.length / itemsPerPage);
+  const paginatedSessions = filteredSessions.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-10">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-neutral-900">User Login History</h1>
-        <p className="text-sm text-neutral-500 mt-1">
-          Monitor active sessions, IP addresses, and login devices for security.
-        </p>
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-neutral-900">User Login History</h1>
+          <p className="text-sm text-neutral-500 mt-1">
+            Monitor active sessions, IP addresses, and login devices for security.
+          </p>
+        </div>
+        
+        {/* Search Bar */}
+        <div className="relative w-full sm:w-72">
+          <input
+            type="text"
+            placeholder="Search by email, name or IP..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1); // Search korle page 1 theke shuru hobe
+            }}
+            className="w-full rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+          />
+        </div>
       </div>
 
       {loading ? (
@@ -67,9 +103,9 @@ export default function AdminSessionsPage() {
         </div>
       ) : error ? (
         <ErrorState message={error} onRetry={fetchSessions} />
-      ) : sessions.length === 0 ? (
+      ) : filteredSessions.length === 0 ? (
         <div className="rounded-xl border border-dashed border-neutral-300 bg-white p-12 text-center text-neutral-500">
-          No login sessions found.
+          No matching sessions found.
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
@@ -85,7 +121,7 @@ export default function AdminSessionsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100">
-                {sessions.map((session) => (
+                {paginatedSessions.map((session) => (
                   <tr key={session.id} className="hover:bg-neutral-50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="font-medium text-neutral-900">{session.user?.name || "Unknown"}</div>
@@ -117,6 +153,31 @@ export default function AdminSessionsPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between border-t border-neutral-200 bg-white px-6 py-3">
+              <span className="text-sm text-neutral-500">
+                Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredSessions.length)} of {filteredSessions.length} entries
+              </span>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="rounded border border-neutral-300 px-3 py-1 text-sm font-medium text-neutral-700 disabled:opacity-50 hover:bg-neutral-50"
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="rounded border border-neutral-300 px-3 py-1 text-sm font-medium text-neutral-700 disabled:opacity-50 hover:bg-neutral-50"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
