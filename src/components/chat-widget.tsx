@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { api } from "@/lib/api";
+import { useState } from "react";
+import { api } from "@/lib/api"; 
 import { Button } from "./ui";
 
 interface Message {
@@ -20,21 +20,6 @@ export default function ChatWidget() {
     },
   ]);
 
-  // ১. অটো-স্কিনের জন্য Ref তৈরি
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  // ২. একদম নিচে স্ক্রোল করার ফাংশন
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  // ৩. নতুন মেসেজ আসলে, এআই টাইপ করলে বা চ্যাট উইন্ডো ওপেন হলে অটোমেটিক নিচে স্ক্রোল হবে
-  useEffect(() => {
-    if (isOpen) {
-      scrollToBottom();
-    }
-  }, [messages, loading, isOpen]);
-
   const handleSend = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!input.trim() || loading) return;
@@ -42,7 +27,7 @@ export default function ChatWidget() {
     const userMessageText = input.trim();
     setInput("");
 
-    // আগের মেসেজগুলোর সাথে নতুন মেসেজ যোগ করে পুরো হিস্ট্রি রেডি করা
+    // ১. আগের মেসেজগুলোর সাথে নতুন মেসেজ যোগ করে পুরো হিস্ট্রি রেডি করা
     const updatedMessages: Message[] = [
       ...messages,
       { role: "user", text: userMessageText },
@@ -52,12 +37,12 @@ export default function ChatWidget() {
     setLoading(true);
 
     try {
-      // ব্যাকএন্ডে পুরো চ্যাট হিস্ট্রি (messages) পাঠানো
+      // ২. ব্যাকএন্ডে পুরো চ্যাট হিস্ট্রি (messages) পাঠানো
       const data = await api.post<{ success: boolean; reply: string }>("/chat", {
-        messages: updatedMessages,
+        messages: updatedMessages, // 👈 পুরো চ্যাট হিস্ট্রি ব্যাকএন্ডে যাচ্ছে
       });
 
-      // এআই-এর রিপ্লাই মেসেজ লিস্টে যোগ করা
+      // ৩. এআই-এর রিপ্লাই মেসেজ লিস্টে যোগ করা
       setMessages((prev) => [
         ...prev,
         { role: "assistant", text: data.reply },
@@ -67,7 +52,7 @@ export default function ChatWidget() {
         ...prev,
         {
           role: "assistant",
-          text: "Sorry, Something went wrong!",
+          text: "Sorry,Something went Wrong!",
         },
       ]);
     } finally {
@@ -132,7 +117,6 @@ export default function ChatWidget() {
                 </div>
               </div>
             ))}
-
             {loading && (
               <div className="flex justify-start">
                 <div className="bg-white border text-gray-400 p-3 rounded-2xl shadow-sm text-xs italic">
@@ -140,9 +124,6 @@ export default function ChatWidget() {
                 </div>
               </div>
             )}
-
-            {/* 👈 অটো-স্ক্রোলের জন্য অদৃশ্য টার্গেট ডিভ */}
-            <div ref={messagesEndRef} />
           </div>
 
           {/* ইনপুট ফর্ম */}
@@ -150,7 +131,7 @@ export default function ChatWidget() {
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
+              onKeyDown={handleKeyDown} // 👈 keydown ইভেন্ট হ্যান্ডলার যুক্ত করা হয়েছে
               placeholder="Ask about food, menu, or order..."
               rows={1}
               className="flex-1 border border-gray-300 rounded-xl px-4 py-2 text-sm outline-none focus:border-orange-500 text-black resize-none"
