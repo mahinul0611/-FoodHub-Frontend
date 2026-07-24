@@ -5,6 +5,7 @@ import { api } from "@/lib/api";
 import { ErrorState } from "@/components/ui";
 // Tomar sothik path theke Pagination import
 import { Pagination } from "@/components/pagination"; 
+import { UAParser } from "ua-parser-js";
 
 interface SessionData {
   id: string;
@@ -45,31 +46,34 @@ export default function AdminSessionsPage() {
     fetchSessions();
   }, []);
 
-  const formatDevice = (ua?: string) => {
-    if (!ua) return "Unknown Device";
+  const formatDevice = (uaString?: string) => {
+    if (!uaString) return "Unknown Device";
 
-    // 1. Android er model ber korar try
-    if (ua.includes("Android")) {
-      // Android UA ordinarily eirokom hoy: Mozilla/5.0 (Linux; Android 13; SM-S918B Build/...)
-      const androidMatch = ua.match(/Android\s[0-9\.]+;\s([^;)]+)/);
-      if (androidMatch && androidMatch[1]) {
-        // Build tag thakle seta kete bad dewa
-        const model = androidMatch[1].split('Build')[0].trim();
-        return `Android (${model})`; // Output: Android (SM-S918B)
-      }
-      return "Android Device";
+    const parser = new UAParser(uaString);
+    const result = parser.getResult();
+
+    const osName = result.os.name || "Unknown OS";
+    const browserName = result.browser.name || "";
+    
+    // Vendor ar Model (jemon: Samsung Galaxy S23 ba Xiaomi Poco X3)
+    const vendor = result.device.vendor;
+    const model = result.device.model;
+
+    // Jodi Phone ba Tablet hoy
+    if (vendor && model) {
+      return `${vendor} ${model} (${browserName})`; // Output: Samsung SM-S918B (Chrome)
     }
 
-    // 2. iOS (iPhone/iPad)
-    if (ua.includes("iPhone")) return "iPhone";
-    if (ua.includes("iPad")) return "iPad";
+    // Jodi Apple device (iPhone/iPad) kintu specific model pawa na jay
+    if (result.device.type === 'mobile' || result.device.type === 'tablet') {
+      return `${osName} Device ${browserName ? `(${browserName})` : ''}`;
+    }
 
-    // 3. PC / Desktop
-    if (ua.includes("Windows")) return "Windows PC";
-    if (ua.includes("Mac OS")) return "Mac OS";
-    if (ua.includes("Linux")) return "Linux PC";
-
-    return "Other Device";
+    // Jodi PC / Desktop / Laptop hoy
+    if (osName.includes("Mac")) return `Mac OS ${browserName ? `(${browserName})` : ''}`;
+    if (osName.includes("Windows")) return `Windows PC ${browserName ? `(${browserName})` : ''}`;
+    
+    return `${osName} ${browserName ? `(${browserName})` : ''}`;
   };
 
   const filteredSessions = sessions.filter((session) => {
