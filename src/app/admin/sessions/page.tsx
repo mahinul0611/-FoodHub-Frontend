@@ -47,10 +47,28 @@ export default function AdminSessionsPage() {
 
   const formatDevice = (ua?: string) => {
     if (!ua) return "Unknown Device";
+
+    // 1. Android er model ber korar try
+    if (ua.includes("Android")) {
+      // Android UA ordinarily eirokom hoy: Mozilla/5.0 (Linux; Android 13; SM-S918B Build/...)
+      const androidMatch = ua.match(/Android\s[0-9\.]+;\s([^;)]+)/);
+      if (androidMatch && androidMatch[1]) {
+        // Build tag thakle seta kete bad dewa
+        const model = androidMatch[1].split('Build')[0].trim();
+        return `Android (${model})`; // Output: Android (SM-S918B)
+      }
+      return "Android Device";
+    }
+
+    // 2. iOS (iPhone/iPad)
+    if (ua.includes("iPhone")) return "iPhone";
+    if (ua.includes("iPad")) return "iPad";
+
+    // 3. PC / Desktop
     if (ua.includes("Windows")) return "Windows PC";
-    if (ua.includes("Mac OS")) return "Mac / iOS";
-    if (ua.includes("Android")) return "Android Device";
+    if (ua.includes("Mac OS")) return "Mac OS";
     if (ua.includes("Linux")) return "Linux PC";
+
     return "Other Device";
   };
 
