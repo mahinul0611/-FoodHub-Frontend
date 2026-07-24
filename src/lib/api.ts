@@ -21,7 +21,9 @@ async function request<T = unknown>(
       credentials: "include",
       ...options,
       headers: {
-        ...(options.body ? { "Content-Type": "application/json" } : {}),
+        ...(options.body !== undefined
+          ? { "Content-Type": "application/json" }
+          : {}),
         ...(options.headers ?? {}),
       },
     });
@@ -45,11 +47,11 @@ async function request<T = unknown>(
 
   if (!res.ok) {
     const message =
-  (data &&
-    typeof data === "object" &&
-    ((typeof data.error === "string" && data.error) ||
-      data.message ||
-      data.errorMessage)) ||
+      (data &&
+        typeof data === "object" &&
+        ((typeof data.error === "string" && data.error) ||
+          data.message ||
+          data.errorMessage)) ||
       (typeof data === "string" && data.slice(0, 200)) ||
       `Request failed with status ${res.status}`;
     throw new ApiError(String(message), res.status);
@@ -63,12 +65,18 @@ export const api = {
   post: <T = unknown>(path: string, body?: unknown) =>
     request<T>(path, {
       method: "POST",
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body: body !== undefined ? JSON.stringify(body) : undefined,
     }),
   put: <T = unknown>(path: string, body?: unknown) =>
-    request<T>(path, { method: "PUT", body: JSON.stringify(body) }),
+    request<T>(path, {
+      method: "PUT",
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    }),
   patch: <T = unknown>(path: string, body?: unknown) =>
-    request<T>(path, { method: "PATCH", body: JSON.stringify(body) }),
+    request<T>(path, {
+      method: "PATCH",
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    }),
   delete: <T = unknown>(path: string) => request<T>(path, { method: "DELETE" }),
 };
 
