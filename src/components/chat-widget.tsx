@@ -52,7 +52,7 @@ export default function ChatWidget() {
         ...prev,
         {
           role: "assistant",
-          text: "Dukhito! Kono সমস্যা হয়েছে। Abar chesta korun.",
+          text: "Sorry,Something went Wrong!",
         },
       ]);
     } finally {
