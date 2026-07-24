@@ -1,0 +1,136 @@
+"use client";
+
+import { useState } from "react";
+import { api } from "@/lib/api"; // তোমার প্রজেক্টের api হেল্পার
+
+interface Message {
+  role: "user" | "assistant";
+  text: string;
+}
+
+export default function ChatWidget() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      role: "assistant",
+      text: "Hello! I am your FoodHub assistant. How can I help you today?",
+    },
+  ]);
+
+  const handleSend = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || loading) return;
+
+    const userMessage = input.trim();
+    setInput("");
+    
+    // ১. ইউজারের মেসেজ মেসেজ লিস্টে যোগ করা
+    setMessages((prev) => [...prev, { role: "user", text: userMessage }]);
+    setLoading(true);
+
+    try {
+      // ২. ব্যাকএন্ড এপিআই কল করা
+      const data = await api.post<{ success: boolean; reply: string }>("/chat", {
+        message: userMessage,
+      });
+
+      // ৩. এআই-এর রিপ্লাই লিস্টে যোগ করা
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", text: data.reply },
+      ]);
+    } catch (error) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          text: "Sorry, I couldn't process your message. Please try again.",
+        },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed bottom-6 right-6 z-50">
+      {/* ১. ফ্লোটিং চ্যাট বাটন */}
+      {!isOpen && (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="bg-orange-500 hover:bg-orange-600 text-white rounded-full p-4 shadow-lg transition-transform hover:scale-105 flex items-center justify-center"
+        >
+          💬 AI Support
+        </button>
+      )}
+
+      {/* ২. চ্যাট উইন্ডো বক্স */}
+      {isOpen && (
+        <div className="bg-white border rounded-2xl shadow-2xl w-[350px] sm:w-[380px] h-[480px] flex flex-col overflow-hidden">
+          {/* চ্যাট হেডার */}
+          <div className="bg-orange-500 text-white p-4 flex justify-between items-center font-bold">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">🤖</span>
+              <span>FoodHub Assistant</span>
+            </div>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="text-white hover:text-gray-200 font-bold text-lg"
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* মেসেজ লিস্ট হিস্টোরি */}
+          <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-gray-50 text-sm">
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`flex ${
+                  msg.role === "user" ? "justify-end" : "justify-start"
+                }`}
+              >
+                <div
+                  className={`max-w-[80%] p-3 rounded-2xl ${
+                    msg.role === "user"
+                      ? "bg-orange-500 text-white rounded-br-none"
+                      : "bg-white border text-gray-800 shadow-sm rounded-bl-none"
+                  }`}
+                >
+                  {msg.text}
+                </div>
+              </div>
+            ))}
+            {loading && (
+              <div className="flex justify-start">
+                <div className="bg-white border text-gray-400 p-3 rounded-2xl shadow-sm text-xs italic">
+                  AI is typing...
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ইনপুট ফর্ম */}
+          <form onSubmit={handleSend} className="p-3 border-t bg-white flex gap-2">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask about food, menu, or order..."
+              className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm outline-none focus:border-orange-500 text-black"
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white px-4 py-2 rounded-full text-sm font-medium transition"
+            >
+              Send
+            </button>
+          </form>
+        </div>
+      )}
+    </div>
+  );
+}

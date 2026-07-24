@@ -4,6 +4,7 @@ import "./globals.css";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import { Providers } from "./providers";
+import ChatWidget from "@/components/chat-widget";
 
 export const metadata: Metadata = {
   title: {
@@ -22,6 +23,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />
+          <ChatWidget />
         </Providers>
       </body>
     </html>
