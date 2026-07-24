@@ -63,7 +63,7 @@ export default function AdminOrdersPage() {
       <EmptyState
         icon={"\uD83D\uDCE6"}
         title="No orders yet"
-        description="All platform orders will appear here."
+        description="All platform orders will appear here!"
       />
     );
   }
