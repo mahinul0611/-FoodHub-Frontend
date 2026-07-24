@@ -17,15 +17,18 @@ import { categorySchema, zodFieldErrors } from "@/lib/validators";
 function CategoryRow({
   category,
   onRenamed,
+  onDeleted,
 }: {
   category: Category;
   onRenamed: (name: string) => void;
+  onDeleted: (id: string) => void;
 }) {
   const { toast } = useToast();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(category.name);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const handleSave = async () => {
     const parsed = categorySchema.safeParse({ name });
@@ -46,6 +49,23 @@ function CategoryRow({
       toast(getErrorMessage(err), "error");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm(`Are you sure you want to delete category "${category.name}"?`)) {
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      await api.delete(`/admin/category/${category.id}`);
+      toast(`Category "${category.name}" deleted successfully`, "success");
+      onDeleted(category.id);
+    } catch (err) {
+      toast(getErrorMessage(err), "error");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -86,13 +106,23 @@ function CategoryRow({
       ) : (
         <>
           <span className="font-medium text-neutral-900">{category.name}</span>
-          <Button
-            variant="secondary"
-            className="min-h-0 px-3 py-1.5 text-xs"
-            onClick={() => setEditing(true)}
-          >
-            Rename
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="secondary"
+              className="min-h-0 px-3 py-1.5 text-xs"
+              onClick={() => setEditing(true)}
+            >
+              Rename
+            </Button>
+            <Button
+              type="button"
+              loading={deleting}
+              className="min-h-0 bg-red-600 px-3 py-1.5 text-xs text-white hover:bg-red-700"
+              onClick={handleDelete}
+            >
+              Delete
+            </Button>
+          </div>
         </>
       )}
     </li>
@@ -198,6 +228,9 @@ export default function AdminCategoriesPage() {
                     c.id === category.id ? { ...c, name } : c,
                   ),
                 )
+              }
+              onDeleted={(id) =>
+                setCategories((current) => current.filter((c) => c.id !== id))
               }
             />
           ))}

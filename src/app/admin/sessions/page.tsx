@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { ErrorState } from "@/components/ui";
 // Tomar sothik path theke Pagination import
-import { Pagination } from "@/components/pagination"; 
+import { Pagination } from "@/components/pagination";
 import { UAParser } from "ua-parser-js";
 
 interface SessionData {
@@ -54,7 +54,7 @@ export default function AdminSessionsPage() {
 
     const osName = result.os.name || "Unknown OS";
     const browserName = result.browser.name || "";
-    
+
     // Vendor ar Model (jemon: Samsung Galaxy S23 ba Xiaomi Poco X3)
     const vendor = result.device.vendor;
     const model = result.device.model;
@@ -65,15 +65,17 @@ export default function AdminSessionsPage() {
     }
 
     // Jodi Apple device (iPhone/iPad) kintu specific model pawa na jay
-    if (result.device.type === 'mobile' || result.device.type === 'tablet') {
-      return `${osName} Device ${browserName ? `(${browserName})` : ''}`;
+    if (result.device.type === "mobile" || result.device.type === "tablet") {
+      return `${osName} Device ${browserName ? `(${browserName})` : ""}`;
     }
 
     // Jodi PC / Desktop / Laptop hoy
-    if (osName.includes("Mac")) return `Mac OS ${browserName ? `(${browserName})` : ''}`;
-    if (osName.includes("Windows")) return `Windows PC ${browserName ? `(${browserName})` : ''}`;
-    
-    return `${osName} ${browserName ? `(${browserName})` : ''}`;
+    if (osName.includes("Mac"))
+      return `Mac OS ${browserName ? `(${browserName})` : ""}`;
+    if (osName.includes("Windows"))
+      return `Windows PC ${browserName ? `(${browserName})` : ""}`;
+
+    return `${osName} ${browserName ? `(${browserName})` : ""}`;
   };
 
   const filteredSessions = sessions.filter((session) => {
@@ -88,19 +90,22 @@ export default function AdminSessionsPage() {
   const totalPages = Math.ceil(filteredSessions.length / itemsPerPage);
   const paginatedSessions = filteredSessions.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10">
       <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-900">User Login History</h1>
+          <h1 className="text-2xl font-bold text-neutral-900">
+            User Login History
+          </h1>
           <p className="text-sm text-neutral-500 mt-1">
-            Monitor active sessions, IP addresses, and login devices for security.
+            Monitor active sessions, IP addresses, and login devices for
+            security.
           </p>
         </div>
-        
+
         <div className="relative w-full sm:w-72">
           <input
             type="text"
@@ -136,24 +141,38 @@ export default function AdminSessionsPage() {
                   <tr>
                     <th className="px-6 py-4 font-semibold">User</th>
                     <th className="px-6 py-4 font-semibold">IP Address</th>
-                    <th className="px-6 py-4 font-semibold">Device / Browser</th>
+                    <th className="px-6 py-4 font-semibold">
+                      Device / Browser
+                    </th>
                     <th className="px-6 py-4 font-semibold">Login Time</th>
                     <th className="px-6 py-4 font-semibold">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-100">
                   {paginatedSessions.map((session) => (
-                    <tr key={session.id} className="hover:bg-neutral-50 transition-colors">
+                    <tr
+                      key={session.id}
+                      className="hover:bg-neutral-50 transition-colors"
+                    >
                       <td className="px-6 py-4">
-                        <div className="font-medium text-neutral-900">{session.user?.name || "Unknown"}</div>
-                        <div className="text-xs text-neutral-500">{session.user?.email}</div>
+                        <div className="font-medium text-neutral-900">
+                          {session.user?.name || "Unknown"}
+                        </div>
+                        <div className="text-xs text-neutral-500">
+                          {session.user?.email}
+                        </div>
                       </td>
                       <td className="px-6 py-4 font-mono text-xs">
                         {session.ipAddress || "N/A"}
                       </td>
                       <td className="px-6 py-4">
-                        <div className="font-medium text-neutral-800">{formatDevice(session.userAgent)}</div>
-                        <div className="text-xs text-neutral-500 truncate max-w-[200px]" title={session.userAgent}>
+                        <div className="font-medium text-neutral-800">
+                          {formatDevice(session.userAgent)}
+                        </div>
+                        <div
+                          className="text-xs text-neutral-500 truncate max-w-[200px]"
+                          title={session.userAgent}
+                        >
                           {session.userAgent || "Unknown"}
                         </div>
                       </td>
