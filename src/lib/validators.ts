@@ -1,12 +1,18 @@
 import { z } from "zod";
 
-const phoneRegex = /^[0-9+\-\s()]{6,20}$/;
+const phoneRegex = /^01[3-9]\d{8}$/;
+
+
 
 export const registerSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters"),
   email: z.string().trim().email("Enter a valid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  phone: z.string().trim().regex(phoneRegex, "Enter a valid phone number"),
+  phone: z
+    .string({ required_error: "Phone number is required" })
+    .trim()
+    .length(11, "Phone number must be exactly 11 digits!")
+    .regex(phoneRegex, "Please enter a valid Bangladeshi phone number!"),
   role: z.enum(["USER", "PROVIDER"], {
     errorMap: () => ({ message: "Select an account type" }),
   }),
@@ -56,15 +62,20 @@ export const mealUpdateSchema = z.object({
 });
 export type MealUpdateInput = z.infer<typeof mealUpdateSchema>;
 
+
+
+
+
 export const checkoutSchema = z.object({
   address: z
     .string()
     .trim()
     .min(5, "Delivery address must be at least 5 characters"),
   contactNumber: z
-    .string()
+    .string({ required_error: "Phone number is required" })
     .trim()
-    .regex(phoneRegex, "Enter a valid contact number"),
+    .length(11, "Phone number must be exactly 11 digits!")
+    .regex(phoneRegex, "Please enter a valid Bangladeshi phone number!"),
 });
 export type CheckoutInput = z.infer<typeof checkoutSchema>;
 
