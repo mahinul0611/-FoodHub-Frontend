@@ -52,7 +52,7 @@ const handleGoogleLogin = async () => {
   try {
     const { error } = await authClient.signIn.social({
       provider: "google",
-      callbackURL: window.location.origin,
+      callbackURL: `${window.location.origin}/`, // বা /dashboard
     });
     if (error) {
       setFormError(error.message ?? "Google login failed. Please try again.");
@@ -71,7 +71,7 @@ const handleFacebookLogin = async () => {
   try {
     const { error } = await authClient.signIn.social({
       provider: "facebook",
-      callbackURL: window.location.origin,
+      callbackURL: `${window.location.origin}/`, // বা /dashboard
     });
     if (error) {
       setFormError(
