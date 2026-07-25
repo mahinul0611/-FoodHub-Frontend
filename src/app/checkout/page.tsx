@@ -25,6 +25,8 @@ import {
 import { formatPrice, toNumber } from "@/lib/utils";
 import { checkoutSchema, zodFieldErrors } from "@/lib/validators";
 
+import { sendOrderConfirm } from "@/lib/email"; // 🆕 হেলপারটি ইমপোর্ট করা হলো
+
 type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
 const METHOD_LABELS: Record<PaymentMethod, { title: string; hint: string }> = {
@@ -126,9 +128,21 @@ function CheckoutContent() {
         ...(coupon ? { couponCode: coupon.code } : {}),
       });
 
+      // 🆕 Order ID সবার জন্য unwrap করে নেওয়া হলো যাতে ইমেইলে পাঠানো যায়
+      const order = unwrap<{ id?: string }>(payload);
+      const orderId = order?.id;
+
+      // 🆕 অর্ডার কনফার্মেশন ইমেইল পাঠানো হচ্ছে (Fire and forget)
+      if (orderId && user?.email) {
+        sendOrderConfirm(
+          user.email,
+          user.name || "Customer",
+          orderId,
+          grandTotal
+        );
+      }
+
       if (paymentMethod !== "COD") {
-        const order = unwrap<{ id?: string }>(payload);
-        const orderId = order?.id;
         if (!orderId) {
           throw new Error(
             "Your order was placed, but the payment could not start. Check My orders.",

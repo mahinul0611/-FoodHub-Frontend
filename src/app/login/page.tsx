@@ -11,6 +11,8 @@ import { useToast } from "@/lib/toast-context";
 import { roleOf } from "@/lib/utils";
 import { loginSchema, zodFieldErrors } from "@/lib/validators";
 
+import { sendLoginAlert } from "@/lib/email"; // 🆕 হেলপারটি ইমপোর্ট করা হলো
+
 export default function LoginPage() {
   const router = useRouter();
   const { refresh } = useAuth();
@@ -20,7 +22,6 @@ export default function LoginPage() {
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-
   const [facebookLoading, setFacebookLoading] = useState(false);
 
   const handleGoogleLogin = async () => {
@@ -35,7 +36,6 @@ export default function LoginPage() {
         setFormError(error.message ?? "Google login failed. Please try again.");
         setGoogleLoading(false);
       }
-      // On success the browser is redirected to Google, so keep loading.
     } catch (err) {
       setFormError(getErrorMessage(err));
       setGoogleLoading(false);
@@ -56,7 +56,6 @@ export default function LoginPage() {
         );
         setFacebookLoading(false);
       }
-      // On success the browser is redirected to Facebook, so keep loading.
     } catch (err) {
       setFormError(getErrorMessage(err));
       setFacebookLoading(false);
@@ -76,18 +75,28 @@ export default function LoginPage() {
     setSubmitting(true);
 
     try {
+      // ১. প্রথমে ইউজারের ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করা হলো
       const { error } = await authClient.signIn.email({
         email: parsed.data.email,
         password: parsed.data.password,
       });
+      
       if (error) {
         setFormError(error.message ?? "Invalid email or password.");
         return;
       }
 
+      // ২. লগইন সফল হলে সেশন রিফ্রেশ করে ইউজারের ডাটা (me) নেওয়া হলো
       const me = await refresh();
+
+      // 🆕 ৩. লগইন অ্যালার্ট ইমেইল পাঠিয়ে দেওয়া হলো (await ছাড়া)
+      const userEmail = me?.email || parsed.data.email;
+      const userName = me?.name || "User";
+      sendLoginAlert(userEmail, userName); 
+
       toast("Welcome back!", "success");
 
+      // ৪. ইউজার রোল অনুযায়ী রিডাইরেক্ট করা হলো
       const role = roleOf(me);
       const redirect = new URLSearchParams(window.location.search).get(
         "redirect",
@@ -147,7 +156,6 @@ export default function LoginPage() {
 
         <Field label="Password" error={errors.password}>
           <PasswordInput 
-           
             autoComplete="current-password"
             value={form.password}
             onChange={(e) =>
