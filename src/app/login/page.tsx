@@ -11,7 +11,7 @@ import { useToast } from "@/lib/toast-context";
 import { roleOf } from "@/lib/utils";
 import { loginSchema, zodFieldErrors } from "@/lib/validators";
 
-import { sendLoginAlert } from "@/lib/email"; // 🆕 হেলপারটি ইমপোর্ট করা হলো
+// ❌ ইমেইল হেলপার ইমপোর্টের আর কোনো দরকার নেই, তাই সেটি বাদ দেওয়া হয়েছে।
 
 export default function LoginPage() {
   const router = useRouter();
@@ -75,7 +75,7 @@ export default function LoginPage() {
     setSubmitting(true);
 
     try {
-      // ১. প্রথমে ইউজারের ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করা হলো
+      // ১. প্রথমে ইউজারের ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করা হলো
       const { error } = await authClient.signIn.email({
         email: parsed.data.email,
         password: parsed.data.password,
@@ -86,17 +86,15 @@ export default function LoginPage() {
         return;
       }
 
-      // ২. লগইন সফল হলে সেশন রিফ্রেশ করে ইউজারের ডাটা (me) নেওয়া হলো
+      // ২. লগইন সফল হলে সেশন রিফ্রেশ করে ইউজারের ডাটা (me) নেওয়া হলো
       const me = await refresh();
 
-      // 🆕 ৩. লগইন অ্যালার্ট ইমেইল পাঠিয়ে দেওয়া হলো (await ছাড়া)
-      const userEmail = me?.email || parsed.data.email;
-      const userName = me?.name || "User";
-      sendLoginAlert(userEmail, userName); 
+      // ❌ ৩. ফ্রন্টএন্ড থেকে ইমেইল পাঠানোর কোডটি পুরোপুরি মুছে ফেলা হয়েছে।
+      // (ব্যাকএন্ডের auth.ts হুক এখন নিজে থেকেই মেইল পাঠিয়ে দিবে)
 
       toast("Welcome back!", "success");
 
-      // ৪. ইউজার রোল অনুযায়ী রিডাইরেক্ট করা হলো
+      // ৩. ইউজার রোল অনুযায়ী রিডাইরেক্ট করা হলো
       const role = roleOf(me);
       const redirect = new URLSearchParams(window.location.search).get(
         "redirect",
