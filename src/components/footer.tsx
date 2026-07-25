@@ -52,7 +52,7 @@ export function Footer() {
         <div>
           <p className="text-sm font-semibold text-neutral-900">Contact</p>
           <ul className="mt-3 space-y-2 text-sm text-neutral-500">
-            <li>support@foodhub.example</li>
+            <li>support@mahinulislam2208054.me</li>
             <li>+880 1700-000000</li>
             <li>Dhaka, Bangladesh</li>
           </ul>
