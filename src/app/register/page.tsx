@@ -72,6 +72,7 @@ const handleFacebookLogin = async () => {
     const { error } = await authClient.signIn.social({
       provider: "facebook",
       callbackURL: `${window.location.origin}/`, // বা /dashboard
+      
     });
     if (error) {
       setFormError(
