@@ -30,7 +30,7 @@ export default function LoginPage() {
     try {
       const { error } = await authClient.signIn.social({
         provider: "google",
-        callbackURL: `${window.location.origin}/dashboard`,
+        callbackURL: `${window.location.origin}/`,
       });
       if (error) {
         setFormError(error.message ?? "Google login failed. Please try again.");
@@ -48,7 +48,7 @@ export default function LoginPage() {
     try {
       const { error } = await authClient.signIn.social({
         provider: "facebook",
-        callbackURL: `${window.location.origin}/dashboard`,
+        callbackURL: `${window.location.origin}/`,
       });
       if (error) {
         setFormError(
