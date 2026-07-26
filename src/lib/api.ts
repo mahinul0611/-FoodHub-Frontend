@@ -1,5 +1,5 @@
 export const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "/backend-api";
+  process.env.NEXT_PUBLIC_API_URL ?? "https://api.mahinul.tech";
 
 export class ApiError extends Error {
   status: number;
