@@ -46,8 +46,8 @@ export function OrderNotifications() {
       const payload = await api.get("/orders");
       const orders = asArray<Order>(payload);
 
-      const statusKey = `foodhub-order-status-${userId}`;
-      const promptedKey = `foodhub-review-prompted-${userId}`;
+      const statusKey = `BiteBear-order-status-${userId}`;
+      const promptedKey = `BiteBear-review-prompted-${userId}`;
       const isFirstRun = localStorage.getItem(statusKey) === null;
       const known = readJson<Record<string, string>>(statusKey, {});
       const prompted = readJson<string[]>(promptedKey, []);
@@ -108,7 +108,7 @@ export function OrderNotifications() {
 
   const dismiss = useCallback(() => {
     if (!reviewOrder || !userId) return;
-    const promptedKey = `foodhub-review-prompted-${userId}`;
+    const promptedKey = `BiteBear-review-prompted-${userId}`;
     const prompted = readJson<string[]>(promptedKey, []);
     if (!prompted.includes(reviewOrder.id)) {
       prompted.push(reviewOrder.id);

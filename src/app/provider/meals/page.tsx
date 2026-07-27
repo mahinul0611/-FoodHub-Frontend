@@ -90,7 +90,7 @@ export default function ProviderMealsPage() {
     <div>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-neutral-500">
-          Manage the meals you offer on FoodHub.
+          Manage the meals you offer on BiteBear.
         </p>
         <Link
           href="/provider/meals/new"

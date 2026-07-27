@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <mask id="ear-bite-mask">
+      <rect width="64" height="64" fill="white" />
+      <circle cx="54" cy="12" r="5" fill="black" />
+      <circle cx="47" cy="9" r="4.5" fill="black" />
+    </mask>
+  </defs>
+  <!-- বাম কান -->
+  <circle cx="18" cy="20" r="10" fill="#f97316" />
+  <!-- ডান কান (কামড়ের দাগসহ) -->
+  <circle cx="46" cy="20" r="10" fill="#f97316" mask="url(#ear-bite-mask)" />
+  <!-- ভাল্লুকের মাথা -->
+  <rect x="10" y="18" width="44" height="38" rx="19" fill="#f97316" />
+  <!-- মুখের ভেতরের অংশ -->
+  <ellipse cx="32" cy="42" rx="14" ry="10" fill="#FFFBEB" />
+  <!-- নাক -->
+  <circle cx="32" cy="38" r="3.5" fill="#431407" />
+  <!-- হাসিমুখ -->
+  <path d="M27 43 Q 32 47 37 43" stroke="#431407" stroke-width="2.5" stroke-linecap="round" fill="none" />
+  <!-- চোখ -->
+  <circle cx="22" cy="31" r="3.5" fill="#431407" />
+  <circle cx="42" cy="31" r="3.5" fill="#431407" />
+  <!-- গাল -->
+  <ellipse cx="16" cy="39" rx="3.5" ry="2" fill="#FCA5A5" opacity="0.8" />
+  <ellipse cx="48" cy="39" rx="3.5" ry="2" fill="#FCA5A5" opacity="0.8" />
+</svg>

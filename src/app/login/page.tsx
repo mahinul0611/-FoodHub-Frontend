@@ -233,7 +233,7 @@ export default function LoginPage() {
       </form>
 
       <p className="mt-6 text-center text-sm text-neutral-500">
-        New to FoodHub?{" "}
+        New to BiteBear?{" "}
         <Link
           href="/register"
           className="font-medium text-brand-600 hover:underline"

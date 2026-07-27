@@ -129,7 +129,7 @@ const handleFacebookLogin = async () => {
         return;
       }
 
-      toast("Account created \u2014 welcome to FoodHub!", "success");
+      toast("Account created \u2014 welcome to BiteBear!", "success");
       router.push(roleOf(me) === "PROVIDER" ? "/provider" : "/");
     } catch (err) {
       setFormError(getErrorMessage(err));
@@ -148,7 +148,7 @@ const handleFacebookLogin = async () => {
           Create your account
         </h1>
         <p className="mt-1 text-sm text-neutral-500">
-          Join FoodHub as a customer or a meal provider.
+          Join BiteBear as a customer or a meal provider.
         </p>
       </div>
 

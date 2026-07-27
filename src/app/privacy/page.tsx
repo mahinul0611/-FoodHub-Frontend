@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — FoodHub",
+  title: "Privacy Policy — BiteBear",
   description:
-    "Learn how FoodHub collects, uses, and protects your personal information.",
+    "Learn how BiteBear collects, uses, and protects your personal information.",
 };
 
 const LAST_UPDATED = "July 21, 2026";
@@ -20,8 +20,8 @@ export default function PrivacyPolicyPage() {
       <div className="mt-8 space-y-8 text-sm leading-6 text-neutral-700">
         <section>
           <p>
-            FoodHub (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) operates
-            the FoodHub website and meal ordering platform (the
+            BiteBear (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) operates
+            the BiteBear website and meal ordering platform (the
             &quot;Service&quot;). This Privacy Policy explains what information
             we collect, how we use it, and the choices you have. By using the
             Service, you agree to the practices described in this policy.
@@ -163,7 +163,7 @@ export default function PrivacyPolicyPage() {
               days.
             </li>
             <li>
-              If you signed in with Facebook, you can also remove FoodHub from
+              If you signed in with Facebook, you can also remove BiteBear from
               your Facebook account under{" "}
               <em>Settings &amp; privacy → Apps and websites</em>, and then
               send us a deletion request for any remaining data.

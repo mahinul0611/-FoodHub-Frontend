@@ -16,7 +16,7 @@ export default function ChatWidget() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      text: "Hello! I am your FoodHub assistant. How can I help you today?",
+      text: "Hello! I am your BiteBear assistant. How can I help you today?",
     },
   ]);
 
@@ -100,7 +100,7 @@ export default function ChatWidget() {
           <div className="bg-orange-500 text-white p-4 flex justify-between items-center font-bold">
             <div className="flex items-center gap-2">
               <span className="text-xl">🤖</span>
-              <span>FoodHub Assistant</span>
+              <span>BiteBear Assistant</span>
             </div>
             <Button
               onClick={() => setIsOpen(false)}

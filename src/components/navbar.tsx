@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
 import { useToast } from "@/lib/toast-context";
 import { roleOf } from "@/lib/utils";
+
 const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/meals", label: "Meals" },
@@ -24,23 +25,22 @@ export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, loading, signOut } = useAuth();
-  const { count } = useCart();
+  
+  // 🔴 clear ফাংশনটি এখান থেকে রিমুভ করা হয়েছে
+  const { count } = useCart(); 
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
 
   const role = roleOf(user);
 
-  const { clear } = useCart();
-
   const handleSignOut = async () => {
     await signOut();
     setOpen(false);
-    // 🔴 clear() এবং localStorage.removeItem("cart") এখান থেকে মুছে ফেলুন!
+    
+    // 🔴 কার্ট ক্লিয়ার বা localStorage রিমুভ করার কোডটি বাদ দেওয়া হয়েছে
     toast("Signed out successfully", "success");
     router.push("/login");
   };
-
-
 
   const linkClass = (href: string) =>
     cn(
@@ -53,14 +53,39 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-40 border-b border-neutral-200 bg-white/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
+        
+        {/* ✨ আপডেটেড লোগো সেকশন */}
         <Link
           href="/"
           className="flex items-center gap-2 text-lg font-bold text-neutral-900"
           onClick={() => setOpen(false)}
         >
-          <span aria-hidden="true">{"\uD83C\uDF5C"}</span>
+          <svg 
+            viewBox="0 0 64 64" 
+            fill="none" 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="w-8 h-8 text-brand-600" 
+          >
+            <defs>
+              <mask id="ear-bite-mask">
+                <rect width="64" height="64" fill="white" />
+                <circle cx="54" cy="12" r="5" fill="black" />
+                <circle cx="47" cy="9" r="4.5" fill="black" />
+              </mask>
+            </defs>
+            <circle cx="18" cy="20" r="10" fill="currentColor" />
+            <circle cx="46" cy="20" r="10" fill="currentColor" mask="url(#ear-bite-mask)" />
+            <rect x="10" y="18" width="44" height="38" rx="19" fill="currentColor" />
+            <ellipse cx="32" cy="42" rx="14" ry="10" fill="#FFFBEB" />
+            <circle cx="32" cy="38" r="3.5" fill="#431407" />
+            <path d="M27 43 Q 32 47 37 43" stroke="#431407" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+            <circle cx="22" cy="31" r="3.5" fill="#431407" />
+            <circle cx="42" cy="31" r="3.5" fill="#431407" />
+            <ellipse cx="16" cy="39" rx="3.5" ry="2" fill="#FCA5A5" opacity="0.8" />
+            <ellipse cx="48" cy="39" rx="3.5" ry="2" fill="#FCA5A5" opacity="0.8" />
+          </svg>
           <span>
-            Food<span className="text-brand-600">Hub</span>
+            Bite<span className="text-brand-600">Bear</span>
           </span>
         </Link>
 

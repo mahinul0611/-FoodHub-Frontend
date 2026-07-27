@@ -6,8 +6,8 @@ export function Footer() {
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <p className="text-lg font-bold text-neutral-900">
-            <span aria-hidden="true">{"\uD83C\uDF5C"}</span> Food
-            <span className="text-brand-600">Hub</span>
+            <span aria-hidden="true">{"\uD83C\uDF5C"}</span> Bite
+            <span className="text-brand-600">Bear</span>
           </p>
           <p className="mt-3 max-w-xs text-sm text-neutral-500">
             Fresh, homemade meals from trusted local providers, delivered right
@@ -59,7 +59,7 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t border-neutral-200 py-4 text-center text-xs text-neutral-400">
-        {"\u00A9"} {new Date().getFullYear()} FoodHub. All rights reserved.
+        {"\u00A9"} {new Date().getFullYear()} BiteBear. All rights reserved.
       </div>
     </footer>
   );

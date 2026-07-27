@@ -50,7 +50,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
 
   // 🆕 ডাইনামিক স্টোরেজ কি: ইউজার লগইন থাকলে তার আইডির নামে, নাহলে গেস্ট
-  const STORAGE_KEY = user?.id ? `foodhub-cart-${user.id}` : "foodhub-cart-guest";
+  const STORAGE_KEY = user?.id ? `BiteBear-cart-${user.id}` : "BiteBear-cart-guest";
 
   useEffect(() => {
     try {

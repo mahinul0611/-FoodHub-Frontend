@@ -1,6 +1,6 @@
-# FoodHub Frontend
+# BiteBear Frontend
 
-A complete Next.js (App Router) frontend for the FoodHub meal-ordering platform. Customers browse and order homemade meals, providers manage their menus and orders, and admins oversee the whole platform.
+A complete Next.js (App Router) frontend for the BiteBear meal-ordering platform. Customers browse and order homemade meals, providers manage their menus and orders, and admins oversee the whole platform.
 
 Built with **Next.js 15 (App Router) + TypeScript + Tailwind CSS**, **Better Auth** for authentication, and **Zod** for form validation.
 
@@ -8,7 +8,7 @@ Built with **Next.js 15 (App Router) + TypeScript + Tailwind CSS**, **Better Aut
 
 | Area               | What is included                                                                                                             |
 | ------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| Homepage           | Hero, Browse by category, Featured meals, How it works, Why FoodHub, Provider CTA + Navbar & Footer                          |
+| Homepage           | Hero, Browse by category, Featured meals, How it works, Why BiteBear, Provider CTA + Navbar & Footer                          |
 | Auth               | Register (Customer / Provider role picker), Login, session handling via Better Auth cookies                                  |
 | Meals              | Meal listing with search, category filter and sorting; meal detail with reviews & ratings                                    |
 | Cart & Checkout    | LocalStorage cart, quantity controls, checkout with address & contact validation                                             |
@@ -36,7 +36,7 @@ Built with **Next.js 15 (App Router) + TypeScript + Tailwind CSS**, **Better Aut
 
    ```
    NEXT_PUBLIC_API_URL=/backend-api
-   BACKEND_URL=https://foodhub-backend-5.onrender.com
+   BACKEND_URL=https://BiteBear-backend-5.onrender.com
    ```
 
    API calls are sent to the same-origin path `/backend-api`, which the

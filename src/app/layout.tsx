@@ -8,11 +8,11 @@ import ChatWidget from "@/components/chat-widget";
 
 export const metadata: Metadata = {
   title: {
-    default: "FoodHub \u2014 Fresh meals, delivered",
-    template: "%s | FoodHub",
+    default: "BiteBear \u2014 Fresh meals, delivered",
+    template: "%s | BiteBear",
   },
   description:
-    "Order fresh, homemade meals from trusted local providers. Browse, order, and track your food with FoodHub.",
+    "Order fresh, homemade meals from trusted local providers. Browse, order, and track your food with BiteBear.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

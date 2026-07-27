@@ -142,7 +142,7 @@ export default function HomePage() {
               <span className="text-brand-600">delivered to you</span>
             </h1>
             <p className="mt-4 max-w-md text-base text-neutral-600">
-              FoodHub connects you with trusted local meal providers. Browse the
+              BiteBear connects you with trusted local meal providers. Browse the
               menu, order in seconds, and enjoy food made with care.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
@@ -361,7 +361,7 @@ export default function HomePage() {
       {/* Section 4: How it works */}
       <section id="how-it-works" className="mx-auto max-w-6xl px-4 py-14">
         <h2 className="text-center text-2xl font-bold text-neutral-900">
-          How FoodHub works
+          How BiteBear works
         </h2>
         <p className="mt-1 text-center text-sm text-neutral-500">
           From craving to doorstep in three simple steps.
@@ -391,11 +391,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Section 5: Why FoodHub */}
+      {/* Section 5: Why BiteBear */}
       <section className="bg-neutral-50">
         <div className="mx-auto max-w-6xl px-4 py-14">
           <h2 className="text-center text-2xl font-bold text-neutral-900">
-            Why people love FoodHub
+            Why people love BiteBear
           </h2>
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {VALUE_PROPS.map((prop) => (
@@ -422,7 +422,7 @@ export default function HomePage() {
       <section className="mx-auto max-w-6xl px-4 py-14">
         <div className="rounded-2xl bg-gradient-to-r from-brand-600 to-brand-500 px-6 py-12 text-center md:px-12">
           <h2 className="text-2xl font-bold text-white md:text-3xl">
-            Cook great food? Join FoodHub as a provider.
+            Cook great food? Join BiteBear as a provider.
           </h2>
           <p className="mx-auto mt-2 max-w-xl text-sm text-brand-50">
             Reach hungry customers in your area, manage your menu, and grow your

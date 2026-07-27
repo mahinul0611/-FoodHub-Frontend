@@ -23,7 +23,7 @@ export default function EmailVerifiedPage() {
           Email verified!
         </h1>
         <p className="mt-2 text-sm text-neutral-500">
-          Your FoodHub account is ready to use.
+          Your BiteBear account is ready to use.
         </p>
         <div className="mt-6 flex flex-col gap-2">
           {!loading && user ? (
