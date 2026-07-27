@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const BACKEND_URL =
-  process.env.BACKEND_URL ?? "https://foodhub-backend-7.onrender.com";
+  process.env.BACKEND_URL ?? "https://api.mahinul.tech";
 
 const nextConfig = {
   reactStrictMode: true,

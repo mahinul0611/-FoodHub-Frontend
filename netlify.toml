@@ -7,6 +7,6 @@ package = "@netlify/plugin-nextjs"
 
 [[redirects]]
 from = "/backend-api/*"
-to = "https://foodhub-backend-7.onrender.com/:splat"
+to = "https://api.mahinul.tech/:splat"
 status = 200
 force = true
