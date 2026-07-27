@@ -163,9 +163,12 @@ function CheckoutContent() {
         return;
       }
 
-      clear();
-      toast("Order placed successfully!", "success");
-      router.push("/dashboard/orders");
+      clear(); // কার্ট ক্লিয়ার করা হলো
+      
+      toast("Order placed successfully!", "success"); // আগে টোস্ট মেসেজটি দেখানো ভালো
+      
+      // 🔴 এখানে অবশ্যই order_id প্যারামিটারটি যুক্ত করে দিতে হবে
+      router.push(`/order-confirm?order_id=${orderId}`);
     } catch (err) {
       setFormError(getErrorMessage(err));
       setSubmitting(false);

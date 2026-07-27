@@ -11,6 +11,7 @@ import {
 } from "react";
 import type { Meal } from "./types";
 import { toNumber } from "./utils";
+import { useAuth } from "@/lib/auth-context"; // 🆕 ইউজারের তথ্য আনার জন্য
 
 export interface CartItem {
   meal: Meal;
@@ -41,12 +42,15 @@ export function useCart(): CartContextValue {
   return useContext(CartContext);
 }
 
-const STORAGE_KEY = "foodhub-cart-v1";
 const MAX_QUANTITY = 99;
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth(); // 🆕 কারেন্ট ইউজারকে বের করা হলো
   const [items, setItems] = useState<CartItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
+
+  // 🆕 ডাইনামিক স্টোরেজ কি: ইউজার লগইন থাকলে তার আইডির নামে, নাহলে গেস্ট
+  const STORAGE_KEY = user?.id ? `foodhub-cart-${user.id}` : "foodhub-cart-guest";
 
   useEffect(() => {
     try {
@@ -66,12 +70,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
             ),
           );
         }
+      } else {
+        // 🆕 যদি এই ইউজারের কোনো কার্ট না থাকে, তবে কার্ট ফাঁকা করে দাও
+        setItems([]); 
       }
     } catch {
       // Ignore a corrupted cart and start fresh.
+      setItems([]);
     }
     setHydrated(true);
-  }, []);
+  }, [STORAGE_KEY]); // 🆕 STORAGE_KEY পরিবর্তন হলে (লগইন/লগআউট করলে) এটি আবার রান করবে
 
   useEffect(() => {
     if (!hydrated) return;
@@ -80,7 +88,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     } catch {
       // Storage may be unavailable (private mode); the cart still works in memory.
     }
-  }, [items, hydrated]);
+  }, [items, hydrated, STORAGE_KEY]); // 🆕 STORAGE_KEY ডিপেন্ডেন্সিতে অ্যাড করা হলো
 
   const addItem = useCallback((meal: Meal, quantity = 1) => {
     setItems((prev) => {

@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui";
+import { DELIVERY_CHARGE } from "@/lib/types"; // 🆕 ডেলিভারি চার্জ ইমপোর্ট করা হলো
 import type { Order } from "@/lib/types";
 import {
   formatDate,
@@ -25,6 +26,23 @@ export function OrderCard({
 }) {
   const items = orderItems(order);
   const customer = order.user ?? order.customer;
+
+  // 🆕 সাবটোটাল ক্যালকুলেট করা হচ্ছে (সবগুলো আইটেমের দামের যোগফল)
+  const subtotal = items.reduce((sum, item) => {
+    const meal = item.meals ?? item.meal;
+    const quantity = item.quantity ?? 1;
+    const unit = toNumber(item.price ?? meal?.price);
+    return sum + unit * quantity;
+  }, 0);
+
+  // 🆕 ডেলিভারি চার্জ এবং ডিসকাউন্ট ক্যালকুলেট করা হচ্ছে
+  const finalTotal = toNumber(orderTotal(order));
+  // যদি ব্যাকএন্ড থেকে ডেলিভারি চার্জ না আসে, তবে ডিফল্ট DELIVERY_CHARGE ব্যবহার করবে
+  const delivery = toNumber(order.deliveryCharge ?? DELIVERY_CHARGE);
+  // Total = Subtotal + Delivery - Discount 
+  // সুতরাং, Discount = Subtotal + Delivery - Total
+  const calculatedDiscount = Math.max(0, subtotal + delivery - finalTotal);
+  const discount = toNumber(order.discount ?? calculatedDiscount);
 
   return (
     <div className="rounded-xl border border-neutral-200 bg-white p-5">
@@ -61,13 +79,13 @@ export function OrderCard({
         <p className="mt-1 text-sm text-neutral-600">
           {order.address ? (
             <>
-              {"\uD83D\uDCCD"} {order.address}
+              {"📍"} {order.address}
             </>
           ) : null}
-          {order.address && order.contactNumber ? " \u00B7 " : ""}
+          {order.address && order.contactNumber ? " · " : ""}
           {order.contactNumber ? (
             <>
-              {"\uD83D\uDCDE"} {order.contactNumber}
+              {"📞"} {order.contactNumber}
             </>
           ) : null}
         </p>
@@ -87,7 +105,7 @@ export function OrderCard({
                 <span className="text-neutral-700">
                   {meal?.name ?? "Meal"}{" "}
                   <span className="text-neutral-400">
-                    {"\u00D7"} {quantity}
+                    {"×"} {quantity}
                   </span>
                 </span>
                 <span className="font-medium text-neutral-900">
@@ -99,10 +117,31 @@ export function OrderCard({
         </ul>
       ) : null}
 
+      {/* 🆕 নতুন যোগ করা Order Breakdown (Subtotal, Delivery, Discount) */}
+      <dl className="mt-3 space-y-2 border-t border-neutral-100 pt-3 text-sm text-neutral-600">
+        <div className="flex justify-between">
+          <dt>Subtotal</dt>
+          <dd className="font-medium text-neutral-900">{formatPrice(subtotal)}</dd>
+        </div>
+        
+        <div className="flex justify-between">
+          <dt>Delivery charge</dt>
+          <dd className="font-medium text-neutral-900">{formatPrice(delivery)}</dd>
+        </div>
+
+        {discount > 0 ? (
+          <div className="flex justify-between text-green-700">
+            <dt>Discount {order.couponCode ? `(${order.couponCode})` : ""}</dt>
+            <dd className="font-medium">-{formatPrice(discount)}</dd>
+          </div>
+        ) : null}
+      </dl>
+
+      {/* Total Section (একটু বোল্ড করে দেওয়া হয়েছে) */}
       <div className="mt-3 flex items-center justify-between border-t border-neutral-100 pt-3">
-        <span className="text-sm text-neutral-500">Total</span>
-        <span className="text-base font-bold text-neutral-900">
-          {formatPrice(orderTotal(order))}
+        <span className="text-sm font-semibold text-neutral-900">Total</span>
+        <span className="text-lg font-bold text-neutral-900">
+          {formatPrice(finalTotal)}
         </span>
       </div>
 

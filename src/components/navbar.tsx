@@ -8,7 +8,6 @@ import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
 import { useToast } from "@/lib/toast-context";
 import { roleOf } from "@/lib/utils";
-
 const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/meals", label: "Meals" },
@@ -31,12 +30,17 @@ export function Navbar() {
 
   const role = roleOf(user);
 
+  const { clear } = useCart();
+
   const handleSignOut = async () => {
     await signOut();
     setOpen(false);
+    // 🔴 clear() এবং localStorage.removeItem("cart") এখান থেকে মুছে ফেলুন!
     toast("Signed out successfully", "success");
     router.push("/login");
   };
+
+
 
   const linkClass = (href: string) =>
     cn(
